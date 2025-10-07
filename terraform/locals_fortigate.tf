@@ -1,11 +1,9 @@
 locals {
   #####################################################################
-  # Network Interfaces (FortiGate A & B)
+  # FortiGate Network Interfaces (Port 1-4 for both FGT-A and FGT-B)
   #####################################################################
 
-  network_interfaces = merge(
-    local.network_interfaces_workload,
-    {
+  network_interfaces_fortigate = {
     # FortiGate A - Port 1 (External)
     "${var.deployment_prefix}-fgt-a-nic1" = {
       resource_group_name = azurerm_resource_group.resource_group[local.resource_group_name].name
@@ -150,15 +148,13 @@ locals {
         primary                       = true
       }]
     }
-  })
+  }
 
   #####################################################################
-  # Virtual Machines (FortiGate A & B)
+  # FortiGate Virtual Machines (FGT-A and FGT-B)
   #####################################################################
 
-  virtual_machines = merge(
-    local.virtual_machines_workload,
-    {
+  virtual_machines_fortigate = {
     "${var.deployment_prefix}-fgt-a" = {
       resource_group_name = azurerm_resource_group.resource_group[local.resource_group_name].name
       location            = azurerm_resource_group.resource_group[local.resource_group_name].location
@@ -171,7 +167,7 @@ locals {
       admin_password                  = var.admin_password
       disable_password_authentication = false
 
-      custom_data = base64encode(templatefile("${path.module}/cloud-init/fortigate-a.tpl", {
+      custom_data = base64encode(templatefile("${path.module}/cloud-init/fortigate.tpl", {
         var_hostname                    = "${var.deployment_prefix}-fgt-a"
         var_vnet_address_prefix         = var.vnet_address_prefix
         var_subnet1_name                = var.subnet1_name
@@ -189,6 +185,7 @@ locals {
         var_port3_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet3_name}"].address_prefixes[0])
         var_port4_ip                    = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-a-nic4"].private_ip_address
         var_port4_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet4_name}"].address_prefixes[0])
+        var_ha_priority                 = 255
         var_ha_peer_ip                  = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-b-nic3"].private_ip_address
         var_fgt_external_ipaddress      = azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-pip"].ip_address
         var_dvwa_vm_ip                  = var.deploy_dvwa == "yes" ? var.subnet7_start_address : ""
@@ -245,7 +242,7 @@ locals {
       admin_password                  = var.admin_password
       disable_password_authentication = false
 
-      custom_data = base64encode(templatefile("${path.module}/cloud-init/fortigate-b.tpl", {
+      custom_data = base64encode(templatefile("${path.module}/cloud-init/fortigate.tpl", {
         var_hostname                    = "${var.deployment_prefix}-fgt-b"
         var_vnet_address_prefix         = var.vnet_address_prefix
         var_subnet1_name                = var.subnet1_name
@@ -263,6 +260,7 @@ locals {
         var_port3_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet3_name}"].address_prefixes[0])
         var_port4_ip                    = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-b-nic4"].private_ip_address
         var_port4_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet4_name}"].address_prefixes[0])
+        var_ha_priority                 = 1
         var_ha_peer_ip                  = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-a-nic3"].private_ip_address
         var_fgt_external_ipaddress      = azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-pip"].ip_address
         var_dvwa_vm_ip                  = var.deploy_dvwa == "yes" ? var.subnet7_start_address : ""
@@ -307,5 +305,5 @@ locals {
 
       tags = var.fortinet_tags
     }
-  })
+  }
 }

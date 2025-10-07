@@ -233,6 +233,101 @@ locals {
         }
       ]
     }
+
+    "${var.deployment_prefix}-nsg-fortiweb" = {
+      resource_group_name = azurerm_resource_group.resource_group[local.resource_group_name].name
+      location            = azurerm_resource_group.resource_group[local.resource_group_name].location
+
+      name = "${var.deployment_prefix}-nsg-fortiweb"
+      tags = var.fortinet_tags
+
+      security_rules = [
+        {
+          name                       = "AllowSSHInbound"
+          description                = "Allow SSH In"
+          priority                   = 100
+          direction                  = "Inbound"
+          access                     = "Allow"
+          protocol                   = "Tcp"
+          source_port_range          = "*"
+          destination_port_range     = "22"
+          source_address_prefix      = "*"
+          destination_address_prefix = "*"
+        },
+        {
+          name                       = "AllowHTTPInbound"
+          description                = "Allow 80 In"
+          priority                   = 110
+          direction                  = "Inbound"
+          access                     = "Allow"
+          protocol                   = "Tcp"
+          source_port_range          = "*"
+          destination_port_range     = "80"
+          source_address_prefix      = "*"
+          destination_address_prefix = "*"
+        },
+        {
+          name                       = "AllowHTTPSInbound"
+          description                = "Allow 443 In"
+          priority                   = 120
+          direction                  = "Inbound"
+          access                     = "Allow"
+          protocol                   = "Tcp"
+          source_port_range          = "*"
+          destination_port_range     = "443"
+          source_address_prefix      = "*"
+          destination_address_prefix = "*"
+        },
+        {
+          name                       = "AllowDevRegInbound"
+          description                = "Allow 514 in for device registration"
+          priority                   = 130
+          direction                  = "Inbound"
+          access                     = "Allow"
+          protocol                   = "Tcp"
+          source_port_range          = "*"
+          destination_port_range     = "514"
+          source_address_prefix      = "*"
+          destination_address_prefix = "*"
+        },
+        {
+          name                       = "AllowMgmtHTTPInbound"
+          description                = "Allow 8080 In"
+          priority                   = 140
+          direction                  = "Inbound"
+          access                     = "Allow"
+          protocol                   = "Tcp"
+          source_port_range          = "*"
+          destination_port_range     = "8080"
+          source_address_prefix      = "*"
+          destination_address_prefix = "*"
+        },
+        {
+          name                       = "AllowMgmtHTTPSInbound"
+          description                = "Allow 8443 In"
+          priority                   = 150
+          direction                  = "Inbound"
+          access                     = "Allow"
+          protocol                   = "Tcp"
+          source_port_range          = "*"
+          destination_port_range     = "8443"
+          source_address_prefix      = "*"
+          destination_address_prefix = "*"
+        },
+        {
+          name                       = "AllowAllOutbound"
+          description                = "Allow all out"
+          priority                   = 105
+          direction                  = "Outbound"
+          access                     = "Allow"
+          protocol                   = "*"
+          source_port_range          = "*"
+          destination_port_range     = "*"
+          source_address_prefix      = "*"
+          destination_address_prefix = "*"
+        }
+      ]
+    }
   }
 
   #####################################################################
@@ -240,6 +335,8 @@ locals {
   # Associate NSGs with FortiGate NICs:
   # - nsg-allow-all on port1 (External) for both FortiGates
   # - nsg-mgmt on port4 (Management) when public IPs enabled
+  # Associate NSGs with FortiWeb NICs:
+  # - nsg-fortiweb on port1 (External) for both FortiWebs
   #####################################################################
 
   network_interface_security_group_associations = merge(
@@ -263,6 +360,17 @@ locals {
       "${var.deployment_prefix}-fgt-b-nic4-nsg-assoc" = {
         network_interface_id      = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-b-nic4"].id
         network_security_group_id = azurerm_network_security_group.network_security_group["${var.deployment_prefix}-nsg-mgmt"].id
+      }
+    } : {},
+    # Conditionally associate nsg-fortiweb with FortiWeb External NICs (port1)
+    var.deploy_fortiweb == "yes" ? {
+      "${var.deployment_prefix}-fwb-a-nic1-nsg-assoc" = {
+        network_interface_id      = azurerm_network_interface.network_interface["${var.deployment_prefix}-fwb-a-nic1"].id
+        network_security_group_id = azurerm_network_security_group.network_security_group["${var.deployment_prefix}-nsg-fortiweb"].id
+      }
+      "${var.deployment_prefix}-fwb-b-nic1-nsg-assoc" = {
+        network_interface_id      = azurerm_network_interface.network_interface["${var.deployment_prefix}-fwb-b-nic1"].id
+        network_security_group_id = azurerm_network_security_group.network_security_group["${var.deployment_prefix}-nsg-fortiweb"].id
       }
     } : {}
   )

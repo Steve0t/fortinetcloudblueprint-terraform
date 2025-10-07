@@ -80,7 +80,7 @@ set device port1
  next
  end
  set override disable
- set priority 1
+ set priority ${var_ha_priority}
  set unicast-hb enable
  set unicast-hb-peerip ${var_ha_peer_ip}
  end

@@ -22,6 +22,16 @@ variable "deployment_prefix" {
 # Deployment Control Variables
 #####################################################################
 
+variable "deploy_fortiweb" {
+  description = "Deploy FortiWeb WAF cluster (yes/no)"
+  type        = string
+  default     = "yes"
+  validation {
+    condition     = contains(["yes", "no"], var.deploy_fortiweb)
+    error_message = "deploy_fortiweb must be either 'yes' or 'no'"
+  }
+}
+
 variable "deploy_dvwa" {
   description = "Deploy DVWA Instance as part of this template (yes/no)"
   type        = string
@@ -346,12 +356,12 @@ variable "fortigate_license_flexvm_b" {
 #####################################################################
 
 variable "fortiweb_image_sku" {
-  description = "FortiWeb license model (BYOL or PAYG)"
+  description = "FortiWeb license model (PAYG only for now)"
   type        = string
   default     = "fortinet_fw-vm_payg_v2"
   validation {
-    condition     = contains(["fortinet_fw-vm", "fortinet_fw-vm_payg_v2"], var.fortiweb_image_sku)
-    error_message = "fortiweb_image_sku must be either 'fortinet_fw-vm' or 'fortinet_fw-vm_payg_v2'"
+    condition     = contains(["fortinet_fw-vm_payg_v2"], var.fortiweb_image_sku)
+    error_message = "fortiweb_image_sku must be 'fortinet_fw-vm_payg_v2'"
   }
 }
 
