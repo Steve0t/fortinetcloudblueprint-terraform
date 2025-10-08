@@ -1,0 +1,374 @@
+###############################################################################
+# Terraform Variables Example File
+#
+# Copy this file to terraform.tfvars and customize for your deployment.
+# Required variables MUST be set. Optional variables have sensible defaults.
+#
+# Usage:
+#   cp terraform.tfvars.example terraform.tfvars
+#   vim terraform.tfvars  # Edit with your values
+#   terraform plan
+#   terraform apply
+###############################################################################
+
+###############################################################################
+# Required Variables - You MUST set these values
+###############################################################################
+
+# Naming prefix for all deployed resources (lowercase alphanumeric, max 10 chars)
+# Examples: "fortinet", "prod-fgt", "dev-azure"
+deployment_prefix = "myfortinet"
+
+# Admin username for all virtual machines
+# Restrictions: 1-64 characters, alphanumeric and hyphens only
+admin_username = "azureadmin"
+
+# Admin password for all virtual machines
+# Requirements: 12-72 characters, 3 of: uppercase, lowercase, number, special char
+# SECURITY: Use Azure Key Vault or environment variables in production
+admin_password = "ChangeMe123!SecurePassword"
+
+###############################################################################
+# Location and Tagging
+###############################################################################
+
+# Azure region for deployment (leave empty for auto-detection from az cli)
+# Common options: "canadacentral", "canadaeast", "eastus", "westus2", "westeurope"
+# Leave empty to use: az account list-locations --query "[?metadata.regionCategory=='Recommended'].name"
+location = "canadacentral"
+
+# Tags to apply to all deployed resources
+# Customize for your organization's tagging strategy
+fortinet_tags = {
+  publisher   = "Fortinet"
+  template    = "Canadian Fortinet Architecture Blueprint"
+  environment = "production"
+  managed_by  = "terraform"
+  cost_center = "security-operations"
+  project     = "network-security"
+}
+
+###############################################################################
+# Deployment Control - What to Deploy
+###############################################################################
+
+# Deploy FortiWeb WAF cluster (2x VMs + External Load Balancer)
+# Set to false if you only need FortiGate firewall capabilities
+deploy_fortiweb = true
+
+# Deploy DVWA workload VM (vulnerable web applications for testing)
+# Includes: DVWA, Juice Shop, Petstore, demo sites
+# Set to false for production deployments
+deploy_dvwa = true
+
+###############################################################################
+# Network Configuration (Optional - defaults provided)
+###############################################################################
+
+# Virtual Network name (leave empty to auto-generate: {deployment_prefix}-vnet)
+# vnet_name = "fortinet-vnet"
+
+# Virtual Network address space (must not overlap with existing networks)
+# Default: "10.0.0.0/16"
+# vnet_address_prefix = "10.0.0.0/16"
+
+# Subnet Configuration (structured map)
+# You can override individual subnets or use defaults
+# Each subnet requires: name, address_prefix, start_address, required_ip_count, purpose
+#
+# subnets = {
+#   fortigate_external = {
+#     name              = "FGExternal"
+#     address_prefix    = "10.0.1.0/24"
+#     start_address     = "10.0.1.5"
+#     required_ip_count = 2  # FortiGate A + B
+#     purpose           = "FortiGate external-facing interfaces (port1)"
+#   }
+#   fortigate_internal = {
+#     name              = "FGInternal"
+#     address_prefix    = "10.0.2.0/24"
+#     start_address     = "10.0.2.4"
+#     required_ip_count = 3  # Internal LB + FortiGate A + B
+#     purpose           = "FortiGate internal-facing interfaces (port2)"
+#   }
+#   # ... see variables.tf for all 7 subnet definitions
+# }
+
+# On-premises network range for routing (leave empty to skip on-prem route)
+# Example: "192.168.0.0/16" or "10.50.0.0/16"
+# on_prem_range = "192.168.0.0/16"
+
+###############################################################################
+# FortiGate Configuration
+###############################################################################
+
+# FortiGate license model
+# Options: "fortinet_fg-vm" (BYOL), "fortinet_fg-vm_payg_2022" (Pay-As-You-Go)
+# Default: "fortinet_fg-vm_payg_2022"
+# fortigate_image_sku = "fortinet_fg-vm_payg_2022"
+
+# FortiGate firmware version
+# Options: "6.4.12", "7.0.12", "7.2.5", "latest"
+# Default: "latest"
+# fortigate_image_version = "latest"
+
+# VM size for FortiGate instances
+# Common options:
+#   - Standard_F4s  (4 vCPU, 8 GB RAM)  - Development/Testing
+#   - Standard_F8s  (8 vCPU, 16 GB RAM) - Production
+#   - Standard_F16s (16 vCPU, 32 GB RAM) - High Performance
+# Default: "Standard_F4s"
+# instance_type = "Standard_F4s"
+
+# High availability deployment option
+# Options: "Availability Set" (single datacenter), "Availability Zones" (multi-datacenter)
+# Default: "Availability Set"
+# availability_options = "Availability Set"
+
+# Enable Azure Accelerated Networking (SR-IOV)
+# Improves network performance, requires supported VM sizes
+# Default: true
+# accelerated_networking = true
+
+# Create dedicated public IPs for FortiGate management interfaces
+# When true: Creates public IPs for direct SSH/HTTPS access to each FortiGate
+# When false: Management only via NAT rules through cluster public IP
+# Default: true
+enable_fortigate_mgmt_public_ips = true
+
+# Your public IP address for NSG management access rules (CIDR format)
+# Leave empty to auto-detect from ipify.org
+# Example: "203.0.113.42/32"
+# my_public_ip = "203.0.113.42/32"
+
+# Enable serial console for FortiGate VMs (for Azure portal console access)
+# Default: true
+# fortigate_serial_console_enabled = true
+
+# Additional FortiGate configuration (appended to cloud-init)
+# Use for custom CLI commands, static routes, firewall policies, etc.
+# fortigate_additional_custom_data = <<-EOT
+#   config system interface
+#     edit "port1"
+#       set description "Custom description"
+#     next
+#   end
+# EOT
+
+###############################################################################
+# FortiGate Public IP Naming (Optional)
+###############################################################################
+
+# Custom names for public IPs (leave empty to auto-generate)
+# fortigate_lb_public_ip_name      = "FortiGateClusterPublicIP"
+# fortigate_a_mgmt_public_ip_name  = "FortiGate-A-ManagementIP"
+# fortigate_b_mgmt_public_ip_name  = "FortiGate-B-ManagementIP"
+
+###############################################################################
+# FortiManager Integration (Optional)
+###############################################################################
+
+# Connect FortiGates to FortiManager for centralized management
+# fortimanager        = true
+# fortimanager_ip     = "fmgr.example.com"
+# fortimanager_serial = "FMGR-VM-SERIALNUMBER"
+
+###############################################################################
+# FortiGate Licensing (BYOL Only)
+###############################################################################
+
+# BYOL License Files (only required if fortigate_image_sku = "fortinet_fg-vm")
+# Option 1: Traditional license files
+# fortigate_license_byol_a = file("./licenses/fortigate-a.lic")
+# fortigate_license_byol_b = file("./licenses/fortigate-b.lic")
+
+# Option 2: Flex-VM tokens
+# fortigate_license_flexvm_a = "TOKEN-XXXX-XXXX-XXXX-XXXX"
+# fortigate_license_flexvm_b = "TOKEN-YYYY-YYYY-YYYY-YYYY"
+
+###############################################################################
+# FortiWeb Configuration (if deploy_fortiweb = true)
+###############################################################################
+
+# FortiWeb license model (only PAYG supported currently)
+# Default: "fortinet_fw-vm_payg_v2"
+# fortiweb_image_sku = "fortinet_fw-vm_payg_v2"
+
+# FortiWeb firmware version
+# Options: "6.3.17", "7.0.0", "7.0.3", "7.2.0", "latest"
+# Default: "latest"
+# fortiweb_image_version = "latest"
+
+# FortiWeb HA group ID (0-63)
+# Must be unique if multiple FortiWeb clusters in same network
+# Default: 1
+# fortiweb_ha_group_id = 1
+
+# FortiWeb public IP name
+# Default: "FWBAPClusterPublicIP"
+# fortiweb_public_ip_name = "FWBAPClusterPublicIP"
+
+# Enable serial console for FortiWeb VMs
+# Default: true
+# fortiweb_serial_console_enabled = true
+
+# Additional FortiWeb configuration per instance
+# fortiweb_a_additional_custom_data = <<-EOT
+#   config system admin
+#     edit "admin"
+#       set password "CustomPassword123!"
+#     next
+#   end
+# EOT
+
+# fortiweb_b_additional_custom_data = "..."
+
+# FortiFlex license tokens (if using FortiFlex licensing)
+# fortiweb_a_license_fortiflex = "FORTIFLEX-TOKEN-A"
+# fortiweb_b_license_fortiflex = "FORTIFLEX-TOKEN-B"
+
+###############################################################################
+# Workload Configuration (if deploy_dvwa = true)
+###############################################################################
+
+# Enable serial console for workload VM
+# Default: true
+# workload_serial_console_enabled = true
+
+###############################################################################
+# Output Control
+###############################################################################
+
+# Show verbose debug outputs (full resource details)
+# When false: Only user-friendly connection information is displayed
+# When true: Shows all resource details (subnets, NICs, NSGs, etc.)
+# Default: false
+# debug_outputs = false
+
+###############################################################################
+# Advanced Network Service Ports (rarely changed)
+###############################################################################
+
+# Standard service ports (override only if using non-standard ports)
+# port_ssh    = 22
+# port_http   = 80
+# port_https  = 443
+# port_syslog = 514
+
+# Health probe ports for Azure Load Balancers
+# fortigate_probe_port       = 8008  # FortiGate LB health probe
+# fortiweb_http_probe_port   = 8080  # FortiWeb HTTP management
+# fortiweb_https_probe_port  = 8443  # FortiWeb HTTPS management
+
+# Azure infrastructure constant (do not change unless Azure changes this)
+# azure_metadata_ip = "168.63.129.16"  # Azure Wire Server / Metadata Service
+
+###############################################################################
+# Variable Relationships and Dependencies
+###############################################################################
+
+# IMPORTANT: Understand these relationships before customizing:
+#
+# 1. Subnet Addressing:
+#    - start_address must be within address_prefix range
+#    - Ensure required_ip_count IPs are available sequentially
+#    - FortiGate needs 2 IPs per subnet (A + B)
+#    - Internal subnet needs 3 IPs (LB + FortiGate A + B)
+#
+# 2. Licensing:
+#    - PAYG (Pay-As-You-Go): No license files needed
+#    - BYOL (Bring Your Own License): Requires license files or Flex-VM tokens
+#    - Set fortigate_image_sku to "fortinet_fg-vm" for BYOL
+#
+# 3. High Availability:
+#    - Availability Set: VMs in same datacenter (lower latency)
+#    - Availability Zones: VMs across datacenters (higher resilience)
+#    - Choose based on your SLA requirements
+#
+# 4. Management Access:
+#    - enable_fortigate_mgmt_public_ips = true: Direct SSH/HTTPS per FortiGate
+#    - enable_fortigate_mgmt_public_ips = false: Access via NAT rules on cluster IP
+#
+# 5. Deployment Dependencies:
+#    - FortiWeb requires deploy_fortiweb = true
+#    - Workload VM requires deploy_dvwa = true
+#    - Both can be deployed independently
+#
+# 6. Network Security:
+#    - my_public_ip restricts management access to your IP only
+#    - Leave empty to auto-detect your current public IP
+#    - Use CIDR format: "x.x.x.x/32" for single IP
+#
+# 7. VM Sizing:
+#    - Accelerated Networking requires: F4s or larger
+#    - Production workloads: F8s or F16s recommended
+#    - Cost increases linearly with VM size
+#
+# 8. FortiManager Integration:
+#    - Requires network connectivity to FortiManager IP
+#    - FortiGates will register automatically on first boot
+#    - Requires valid FortiManager serial number
+
+###############################################################################
+# Example Configurations
+###############################################################################
+
+# Example 1: Minimal Production Deployment (FortiGate only)
+# deployment_prefix = "prod-fgt"
+# admin_username    = "azureadmin"
+# admin_password    = "SecurePassword123!"
+# location          = "canadacentral"
+# deploy_fortiweb   = false
+# deploy_dvwa       = false
+# instance_type     = "Standard_F8s"
+
+# Example 2: Full Stack with FortiWeb (Production)
+# deployment_prefix                = "prod-stack"
+# admin_username                   = "azureadmin"
+# admin_password                   = "SecurePassword123!"
+# location                         = "canadacentral"
+# deploy_fortiweb                  = true
+# deploy_dvwa                      = false
+# instance_type                    = "Standard_F8s"
+# availability_options             = "Availability Zones"
+# enable_fortigate_mgmt_public_ips = true
+
+# Example 3: Development/Testing Environment
+# deployment_prefix = "dev-test"
+# admin_username    = "azureadmin"
+# admin_password    = "DevPassword123!"
+# location          = "canadacentral"
+# deploy_fortiweb   = true
+# deploy_dvwa       = true
+# instance_type     = "Standard_F4s"
+# debug_outputs     = true
+
+# Example 4: BYOL Deployment with FortiManager
+# deployment_prefix          = "byol-prod"
+# admin_username             = "azureadmin"
+# admin_password             = "SecurePassword123!"
+# location                   = "canadacentral"
+# fortigate_image_sku        = "fortinet_fg-vm"
+# fortigate_license_byol_a   = file("./licenses/fortigate-a.lic")
+# fortigate_license_byol_b   = file("./licenses/fortigate-b.lic")
+# fortimanager               = true
+# fortimanager_ip            = "fmgr.example.com"
+# fortimanager_serial        = "FMGR-SERIAL-NUMBER"
+
+# Example 5: Custom Network Addressing
+# deployment_prefix   = "custom-net"
+# admin_username      = "azureadmin"
+# admin_password      = "SecurePassword123!"
+# location            = "canadacentral"
+# vnet_address_prefix = "172.16.0.0/16"
+# on_prem_range       = "10.0.0.0/8"
+# subnets = {
+#   fortigate_external = {
+#     name              = "External"
+#     address_prefix    = "172.16.1.0/24"
+#     start_address     = "172.16.1.10"
+#     required_ip_count = 2
+#     purpose           = "FortiGate external"
+#   }
+#   # ... define other subnets
+# }
