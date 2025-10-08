@@ -1,5 +1,8 @@
 #!/bin/bash
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+#Wait for Internet access through the FGT by testing the docker registry
+echo "Waiting for docker registry to be reachable"
+curl --retry 20 -s -o /dev/null "https://index.docker.io/v2/"
 
 echo "Updating package list"
 apt-get update
@@ -25,10 +28,6 @@ apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin do
 
 systemctl start docker
 systemctl enable docker
-
-#Wait for Internet access through the FGT by testing the docker registry
-echo "Waiting for docker registry to be reachable"
-curl --retry 20 -s -o /dev/null "https://index.docker.io/v2/"
 
 echo "Installing containers"
 
