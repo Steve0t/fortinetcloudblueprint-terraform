@@ -224,19 +224,19 @@ variable "accelerated_networking" {
   default     = true
 }
 
-variable "public_ip1_name" {
+variable "fortigate_lb_public_ip_name" {
   description = "Name of FortiGate Load Balancer Public IP (leave empty to use deployment_prefix-fgt-pip)"
   type        = string
   default     = ""
 }
 
-variable "public_ip2_name" {
+variable "fortigate_a_mgmt_public_ip_name" {
   description = "Name of FortiGate A Management Public IP (leave empty to use deployment_prefix-fgt-a-mgmt-pip)"
   type        = string
   default     = ""
 }
 
-variable "public_ip3_name" {
+variable "fortigate_b_mgmt_public_ip_name" {
   description = "Name of FortiGate B Management Public IP (leave empty to use deployment_prefix-fgt-b-mgmt-pip)"
   type        = string
   default     = ""
@@ -254,7 +254,7 @@ variable "my_public_ip" {
   default     = ""
 }
 
-variable "fgt_serial_console" {
+variable "fortigate_serial_console_enabled" {
   description = "Enable Serial Console on FortiGates"
   type        = bool
   default     = true
@@ -372,7 +372,7 @@ variable "fortiweb_public_ip_name" {
   default     = "FWBAPClusterPublicIP"
 }
 
-variable "fwb_serial_console" {
+variable "fortiweb_serial_console_enabled" {
   description = "Enable Serial Console on FortiWeb"
   type        = bool
   default     = true
@@ -382,8 +382,8 @@ variable "fwb_serial_console" {
 # DVWA Configuration
 #####################################################################
 
-variable "dvwa_serial_console" {
-  description = "Enable Serial Console on DVWA workload"
+variable "workload_serial_console_enabled" {
+  description = "Enable Serial Console on workload VM"
   type        = bool
   default     = true
 }

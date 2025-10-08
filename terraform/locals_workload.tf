@@ -74,7 +74,7 @@ locals {
         storage_account_type = local.standard_lrs
       }
 
-      boot_diagnostics_enabled = var.dvwa_serial_console
+      boot_diagnostics_enabled = var.workload_serial_console_enabled
 
       identity_type = "SystemAssigned"
 

@@ -225,7 +225,7 @@ locals {
         storage_account_type = local.standard_lrs
       }
 
-      boot_diagnostics_enabled = var.fgt_serial_console
+      boot_diagnostics_enabled = var.fortigate_serial_console_enabled
 
       identity_type = "SystemAssigned"
 
@@ -301,7 +301,7 @@ locals {
         storage_account_type = local.standard_lrs
       }
 
-      boot_diagnostics_enabled = var.fgt_serial_console
+      boot_diagnostics_enabled = var.fortigate_serial_console_enabled
 
       identity_type = "SystemAssigned"
 

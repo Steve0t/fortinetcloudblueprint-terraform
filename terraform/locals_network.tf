@@ -386,7 +386,7 @@ locals {
         resource_group_name = azurerm_resource_group.resource_group[local.resource_group_name].name
         location            = azurerm_resource_group.resource_group[local.resource_group_name].location
 
-        name              = var.public_ip1_name != "" ? var.public_ip1_name : "${var.deployment_prefix}-fgt-pip"
+        name              = var.fortigate_lb_public_ip_name != "" ? var.fortigate_lb_public_ip_name : "${var.deployment_prefix}-fgt-pip"
         allocation_method = "Static"
         sku               = "Standard"
         tags              = var.fortinet_tags
@@ -398,7 +398,7 @@ locals {
         resource_group_name = azurerm_resource_group.resource_group[local.resource_group_name].name
         location            = azurerm_resource_group.resource_group[local.resource_group_name].location
 
-        name              = var.public_ip2_name != "" ? var.public_ip2_name : "${var.deployment_prefix}-fgt-a-mgmt-pip"
+        name              = var.fortigate_a_mgmt_public_ip_name != "" ? var.fortigate_a_mgmt_public_ip_name : "${var.deployment_prefix}-fgt-a-mgmt-pip"
         allocation_method = "Static"
         sku               = "Standard"
         tags              = var.fortinet_tags
@@ -407,7 +407,7 @@ locals {
         resource_group_name = azurerm_resource_group.resource_group[local.resource_group_name].name
         location            = azurerm_resource_group.resource_group[local.resource_group_name].location
 
-        name              = var.public_ip3_name != "" ? var.public_ip3_name : "${var.deployment_prefix}-fgt-b-mgmt-pip"
+        name              = var.fortigate_b_mgmt_public_ip_name != "" ? var.fortigate_b_mgmt_public_ip_name : "${var.deployment_prefix}-fgt-b-mgmt-pip"
         allocation_method = "Static"
         sku               = "Standard"
         tags              = var.fortinet_tags

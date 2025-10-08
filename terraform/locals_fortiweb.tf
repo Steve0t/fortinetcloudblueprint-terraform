@@ -153,7 +153,7 @@ locals {
         storage_account_type = local.standard_lrs
       }]
 
-      boot_diagnostics_enabled = var.fwb_serial_console
+      boot_diagnostics_enabled = var.fortiweb_serial_console_enabled
 
       identity_type = "SystemAssigned"
 
@@ -222,7 +222,7 @@ locals {
         storage_account_type = local.standard_lrs
       }]
 
-      boot_diagnostics_enabled = var.fwb_serial_console
+      boot_diagnostics_enabled = var.fortiweb_serial_console_enabled
 
       identity_type = "SystemAssigned"
 
