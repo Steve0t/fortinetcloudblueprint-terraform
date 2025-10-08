@@ -1,3 +1,6 @@
+{
+"cloud-initd": "enable",
+"usr-cli": "
 config system settings
 set enable-file-upload enable
 end
@@ -19,7 +22,7 @@ set override enable
 end
 
 config system interface
-edit "port2"
+edit 'port2'
 set type physical
 set mode static
 set ip ${var_local_port2_ip}/${var_subnet6_cidr}
@@ -34,14 +37,14 @@ next
 end
 
 config system vip
-edit "WORKLOAD_VIP"
+edit 'WORKLOAD_VIP'
 set vip ${var_fortiweb_public_ip}/32
 set interface port1
 next
 end
 
 config server-policy server-pool
-edit "WORKLOAD_POOL"
+edit 'WORKLOAD_POOL'
 config pserver-list
 edit 1
 set ip ${var_workload_ip}
@@ -60,7 +63,7 @@ set flag enable
 end
 
 config server-policy vserver
-edit "WORKLOAD_VS"
+edit 'WORKLOAD_VS'
 config vip-list
 edit 1
 set interface port1
@@ -74,7 +77,7 @@ next
 end
 
 config server-policy policy
-edit "WORKLOAD_POLICY"
+edit 'WORKLOAD_POLICY'
 set vserver WORKLOAD_VS
 set service HTTP
 set server-pool WORKLOAD_POOL
@@ -98,7 +101,7 @@ set wvs enable
 set fortigate-integration enable
 end
 config waf url-access url-access-rule
-edit "DVWA_URL_ACCCESS_RULE"
+edit 'DVWA_URL_ACCCESS_RULE'
 set action alert_deny
 config match-condition
 edit 1
@@ -109,7 +112,7 @@ end
 next
 end
 config waf url-access url-access-policy
-edit "DVWA_URL_ACCESS_POLICY"
+edit 'DVWA_URL_ACCESS_POLICY'
 config rule
 edit 1
 set url-access-rule-name DVWA_URL_ACCCESS_RULE
@@ -118,7 +121,7 @@ end
 next
 end
 config waf geo-block-list
-edit "DVWA_GEO_PROTECTION"
+edit 'DVWA_GEO_PROTECTION'
 config country-list
 edit 1
 set country-name Afghanistan
@@ -127,7 +130,7 @@ end
 next
 end
 config waf ip-list
-edit "DVWA_IP_LIST"
+edit 'DVWA_IP_LIST'
 set action alert_deny
 config members
 edit 1
@@ -138,13 +141,13 @@ end
 next
 end
 config user local-user
-edit "demo"
+edit 'demo'
 set username demo
 set password demo
 next
 end
 config user user-group
-edit "DVWA_USER_GROUP"
+edit 'DVWA_USER_GROUP'
 config members
 edit 1
 set local-name demo
@@ -153,7 +156,7 @@ end
 next
 end
 config waf http-authen http-authen-rule
-edit "DVWA_AUTH_RULE"
+edit 'DVWA_AUTH_RULE'
 config rule
 edit 1
 set user-realm REALM
@@ -164,7 +167,7 @@ end
 next
 end
 config waf http-authen http-authen-policy
-edit "DVWA_AUTH_POLICY"
+edit 'DVWA_AUTH_POLICY'
 config rule
 edit 1
 set http-authen-rule DVWA_AUTH_RULE
@@ -173,7 +176,7 @@ end
 next
 end
 config waf hidden-fields-rule
-edit "DVWA_HIDDEN_FIELD_RULE"
+edit 'DVWA_HIDDEN_FIELD_RULE'
 config hidden-field-name
 edit 1
 set argument MAX_FILE_SIZE
@@ -185,7 +188,7 @@ set action-url0 /vulnerabilities/upload/
 next
 end
 config waf hidden-fields-protection
-edit "DVWA_HIDDEN_FIELD"
+edit 'DVWA_HIDDEN_FIELD'
 config hidden_fields_list
 edit 1
 set hidden-field-rule DVWA_HIDDEN_FIELD_RULE
@@ -194,7 +197,7 @@ end
 next
 end
 config waf user-tracking rule
-edit "DVWA_USER_TRACKING_RULE"
+edit 'DVWA_USER_TRACKING_RULE'
 set authentication-url /login.php
 set username-parameter username
 set password-parameter password
@@ -208,7 +211,7 @@ end
 next
 end
 config waf user-tracking policy
-edit "DVWA_USER_TRACKING"
+edit 'DVWA_USER_TRACKING'
 config input-rule-list
 edit 1
 set input-rule DVWA_USER_TRACKING_RULE
@@ -217,7 +220,7 @@ end
 next
 end
 config waf url-rewrite url-rewrite-rule
-edit "DVWA_URL_REWRITE_FORTINET"
+edit 'DVWA_URL_REWRITE_FORTINET'
 set action redirect-301
 set location https://www.fortinet.com
 config header-removal
@@ -231,7 +234,7 @@ set reg-exp ^/fortinet.*
 next
 end
 next
-edit "DVWA_URL_REWRITE_CHANGE"
+edit 'DVWA_URL_REWRITE_CHANGE'
 set url-status enable
 set url /vulnerabilities/csrf/
 config header-removal
@@ -247,7 +250,7 @@ end
 next
 end
 config waf url-rewrite url-rewrite-policy
-edit "DVWA_URL_REWRITE"
+edit 'DVWA_URL_REWRITE'
 config rule
 edit 1
 set url-rewrite-rule-name DVWA_URL_REWRITE_FORTINET
@@ -259,12 +262,12 @@ end
 next
 end
 config waf allow-method-policy
-edit "DVWA_ALLOW_METHOD"
+edit 'DVWA_ALLOW_METHOD'
 set allow-method get post
 next
 end
 config waf file-upload-restriction-rule
-edit "DVWA_WEBSHELL_UPLOADING"
+edit 'DVWA_WEBSHELL_UPLOADING'
 set request-type regular
 set request-file ^/.*
 set type Block
@@ -292,7 +295,7 @@ end
 next
 end
 config waf file-upload-restriction-policy
-edit "DVWA_FILE_SECURITY_POLICY"
+edit 'DVWA_FILE_SECURITY_POLICY'
 set av-scan enable
 config rule
 edit 1
@@ -302,11 +305,11 @@ end
 next
 end
 config waf webshell-detection-policy
-edit "DVWA_WEBSHELL_UPLOADING"
+edit 'DVWA_WEBSHELL_UPLOADING'
 next
 end
 config waf csrf-protection
-edit "DVWA_CSRF_PROTECTION"
+edit 'DVWA_CSRF_PROTECTION'
 set action alert_deny
 config csrf-url-list
 edit 1
@@ -325,16 +328,16 @@ end
 next
 end
 config waf mitb-rule
-edit "DVWA_MAN_IN_THE_BROWSER_RULE"
+edit 'DVWA_MAN_IN_THE_BROWSER_RULE'
 set action alert_deny
 set severity Medium
 set request-url /login.php
 set post-url /login.php
 config protected-parameter-list
-edit "username"
+edit 'username'
 set obfuscate enable
 next
-edit "password"
+edit 'password'
 set type password-input
 set obfuscate enable
 next
@@ -344,7 +347,7 @@ end
 next
 end
 config waf mitb-policy
-edit "DVWA_MAN_IN_THE_BROWSER"
+edit 'DVWA_MAN_IN_THE_BROWSER'
 config rule-list
 edit 1
 set mitb-rule DVWA_MAN_IN_THE_BROWSER_RULE
@@ -353,7 +356,7 @@ end
 next
 end
 config waf input-rule
-edit "DVWA_PARAMETER_VALIDATION_RULE"
+edit 'DVWA_PARAMETER_VALIDATION_RULE'
 set severity Medium
 set request-type regular
 set request-file ^/vulnerabilities/exec/.*
@@ -368,7 +371,7 @@ end
 next
 end
 config waf parameter-validation-rule
-edit "DVWA_PARAMETER_VALIDATION"
+edit 'DVWA_PARAMETER_VALIDATION'
 config input-rule-list
 edit 1
 set input-rule DVWA_PARAMETER_VALIDATION_RULE
@@ -382,7 +385,7 @@ set category Botnet
 set status enable
 next
 edit 2
-set category "Anonymous Proxy"
+set category 'Anonymous Proxy'
 set status enable
 next
 edit 3
@@ -404,48 +407,48 @@ set status enable
 next
 end
 config waf signature
-edit "DVWA_SIGNATURE_PROFILE"
+edit 'DVWA_SIGNATURE_PROFILE'
 config main_class_list
-edit "010000000"
+edit '010000000'
 set fpm-status disable
 set action alert_deny
 set severity High
 next
-edit "020000000"
+edit '020000000'
 set fpm-status disable
 next
-edit "030000000"
+edit '030000000'
 set action alert_deny
 set severity High
 next
-edit "040000000"
+edit '040000000'
 next
-edit "050000000"
+edit '050000000'
 set fpm-status disable
 set action alert_deny
 set severity High
 next
-edit "060000000"
+edit '060000000'
 set fpm-status disable
 next
-edit "070000000"
+edit '070000000'
 set fpm-status disable
 next
-edit "080000000"
+edit '080000000'
 set fpm-status disable
 set severity Low
 next
-edit "090000000"
+edit '090000000'
 set fpm-status disable
 set action alert_deny
 set severity High
 next
-edit "100000000"
+edit '100000000'
 set status disable
 set fpm-status disable
 set severity High
 next
-edit "120000000"
+edit '120000000'
 set status disable
 set severity High
 next
@@ -453,123 +456,123 @@ end
 config sub_class_disable_list
 end
 config signature_disable_list
-edit "060030001"
+edit '060030001'
 next
-edit "060120001"
+edit '060120001'
 next
-edit "080080005"
+edit '080080005'
 next
-edit "080200001"
+edit '080200001'
 next
-edit "080080003"
+edit '080080003'
 next
-edit "090410001"
+edit '090410001'
 next
-edit "090410002"
+edit '090410002'
 next
-edit "040000141"
+edit '040000141'
 next
-edit "040000136"
+edit '040000136'
 next
-edit "060180001"
+edit '060180001'
 next
-edit "060180002"
+edit '060180002'
 next
-edit "060180003"
+edit '060180003'
 next
-edit "060180004"
+edit '060180004'
 next
-edit "060180005"
+edit '060180005'
 next
-edit "060180006"
+edit '060180006'
 next
-edit "060180007"
+edit '060180007'
 next
-edit "060180008"
+edit '060180008'
 next
-edit "010000072"
+edit '010000072'
 next
-edit "010000092"
+edit '010000092'
 next
-edit "010000093"
+edit '010000093'
 next
-edit "010000214"
+edit '010000214'
 next
-edit "030000182"
+edit '030000182'
 next
-edit "030000195"
+edit '030000195'
 next
-edit "030000204"
+edit '030000204'
 next
-edit "050140001"
+edit '050140001'
 next
-edit "050140003"
+edit '050140003'
 next
-edit "050140004"
+edit '050140004'
 next
-edit "050220001"
+edit '050220001'
 next
-edit "080200004"
+edit '080200004'
 next
-edit "080200005"
+edit '080200005'
 next
-edit "080210001"
+edit '080210001'
 next
-edit "080210002"
+edit '080210002'
 next
-edit "080210003"
+edit '080210003'
 next
-edit "080210004"
+edit '080210004'
 next
-edit "080210005"
+edit '080210005'
 next
-edit "090240001"
+edit '090240001'
 next
-edit "050180003"
+edit '050180003'
 next
-edit "080110001"
+edit '080110001'
 next
-edit "080140012"
+edit '080140012'
 next
-edit "080050001"
+edit '080050001'
 next
-edit "080150006"
+edit '080150006'
 next
-edit "080150003"
+edit '080150003'
 next
-edit "080150002"
+edit '080150002'
 next
-edit "080150008"
+edit '080150008'
 next
-edit "080150014"
+edit '080150014'
 next
-edit "080150004"
+edit '080150004'
 next
-edit "080150005"
+edit '080150005'
 next
-edit "080150032"
+edit '080150032'
 next
-edit "080150029"
+edit '080150029'
 next
-edit "080150009"
+edit '080150009'
 next
-edit "080120002"
+edit '080120002'
 next
-edit "080150020"
+edit '080150020'
 next
-edit "080150031"
+edit '080150031'
 next
-edit "080140015"
+edit '080140015'
 next
-edit "080120001"
+edit '080120001'
 next
-edit "050070002"
+edit '050070002'
 next
-edit "050160002"
+edit '050160002'
 next
-edit "010000108"
+edit '010000108'
 next
-edit "080110003"
+edit '080110003'
 next
 end
 config alert_only_list
@@ -585,7 +588,7 @@ end
 next
 end
 config waf x-forwarded-for
-edit "DVWA_X_FORWARDED_FOR"
+edit 'DVWA_X_FORWARDED_FOR'
 set x-forwarded-for-support enable
 set original-ip-header X-FORWARDED-FOR
 config ip-list
@@ -593,7 +596,7 @@ end
 next
 end
 config server-policy vserver
-edit "DVWA_VS"
+edit 'DVWA_VS'
 config vip-list
 edit 1
 set interface port1
@@ -606,7 +609,7 @@ end
 next
 end
 config waf http-protocol-parameter-restriction
-edit "DVWA_PROTOCOL_CONSTRAINTS"
+edit 'DVWA_PROTOCOL_CONSTRAINTS'
 set max-http-header-length 4096
 set max-http-header-length-severity High
 set max-http-content-length 65536
@@ -688,7 +691,7 @@ set odd-and-even-space-attack-severity High
 next
 end
 config waf bot-deception
-edit "DVWA_BOT_DECEPTION"
+edit 'DVWA_BOT_DECEPTION'
 set deception-url /fake_url.php
 set action alert_deny
 config url-list
@@ -699,18 +702,18 @@ end
 next
 end
 config waf biometrics-based-detection
-edit "DVWA_BOT_BIOMETRICS"
+edit 'DVWA_BOT_BIOMETRICS'
 set event-collection-time 10
 config url-list
 end
 next
 end
 config waf threshold-based-detection policy
-edit "DVWA_BOT_TRESHOLDS"
+edit 'DVWA_BOT_TRESHOLDS'
 next
 end
 config waf known-bots
-edit "DVWA_BOT_SIGNATURES"
+edit 'DVWA_BOT_SIGNATURES'
 config malicious-bot-disable-list
 end
 config known-good-bots-disable-list
@@ -718,7 +721,7 @@ end
 next
 end
 config waf bot-mitigate-policy
-edit "DVWA_BOT_POLICY"
+edit 'DVWA_BOT_POLICY'
 set bot-deception DVWA_BOT_DECEPTION
 set biometrics-based-detection DVWA_BOT_BIOMETRICS
 set threshold-based-detection DVWA_BOT_TRESHOLDS
@@ -726,28 +729,28 @@ set known-bots DVWA_BOT_SIGNATURES
 next
 end
 config waf http-request-flood-prevention-rule
-edit "DVWA_HTTP_FLOOD"
+edit 'DVWA_HTTP_FLOOD'
 set access-limit-in-http-session 5
 next
 end
 config waf http-connection-flood-check-rule
-edit "DVWA_CONNECTION_LIMIT"
+edit 'DVWA_CONNECTION_LIMIT'
 set http-connection-threshold 100
 next
 end
 config waf layer4-access-limit-rule
-edit "DVWA_HTTP_LIMIT"
+edit 'DVWA_HTTP_LIMIT'
 set access-limit-standalone-ip 500
 set access-limit-share-ip 1000
 next
 end
 config waf layer4-connection-flood-check-rule
-edit "DVWA_TCP_FLOOD"
+edit 'DVWA_TCP_FLOOD'
 set layer4-connection-threshold 255
 next
 end
 config waf application-layer-dos-prevention
-edit "DVWA_DOS_POLICY"
+edit 'DVWA_DOS_POLICY'
 set enable-http-session-based-prevention enable
 set http-request-flood-prevention-rule DVWA_HTTP_FLOOD
 set http-connection-flood-check-rule DVWA_CONNECTION_LIMIT
@@ -758,90 +761,90 @@ set layer3-fragment-protection enable
 next
 end
 config waf custom-access rule
-edit "DVWA_VULNERABILITY_SCANNING"
+edit 'DVWA_VULNERABILITY_SCANNING'
 set action block-period
 set severity High
 config main-class
-edit "010000000"
+edit '010000000'
 set no-subclass enable
 next
-edit "030000000"
+edit '030000000'
 set no-subclass enable
 next
-edit "050000000"
+edit '050000000'
 next
-edit "090000000"
+edit '090000000'
 next
-edit "070000000"
+edit '070000000'
 set no-subclass enable
 next
 end
 config sub-class
-edit "050010000"
+edit '050010000'
 next
-edit "050020000"
+edit '050020000'
 next
-edit "050030000"
+edit '050030000'
 next
-edit "050050000"
+edit '050050000'
 next
-edit "050060000"
+edit '050060000'
 next
-edit "050070000"
+edit '050070000'
 next
-edit "050080000"
+edit '050080000'
 next
-edit "050090000"
+edit '050090000'
 next
-edit "050100000"
+edit '050100000'
 next
-edit "050110000"
+edit '050110000'
 next
-edit "050130000"
+edit '050130000'
 next
-edit "050140000"
+edit '050140000'
 next
-edit "050150000"
+edit '050150000'
 next
-edit "050160000"
+edit '050160000'
 next
-edit "050170000"
+edit '050170000'
 next
-edit "050180000"
+edit '050180000'
 next
-edit "050190000"
+edit '050190000'
 next
-edit "050200000"
+edit '050200000'
 next
-edit "050220000"
+edit '050220000'
 next
-edit "050230000"
+edit '050230000'
 next
-edit "090230000"
+edit '090230000'
 next
-edit "090240000"
+edit '090240000'
 next
-edit "090300000"
+edit '090300000'
 next
-edit "090310000"
+edit '090310000'
 next
-edit "090320000"
+edit '090320000'
 next
-edit "090330000"
+edit '090330000'
 next
-edit "090340000"
+edit '090340000'
 next
-edit "090410000"
+edit '090410000'
 next
-edit "090440000"
+edit '090440000'
 next
-edit "090480000"
+edit '090480000'
 next
-edit "090490000"
+edit '090490000'
 next
-edit "090500000"
+edit '090500000'
 next
-edit "090510000"
+edit '090510000'
 next
 end
 config custom-signature
@@ -855,7 +858,7 @@ set within 60
 next
 end
 next
-edit "DVWA_BRUTE_FORCE_LOGIN"
+edit 'DVWA_BRUTE_FORCE_LOGIN'
 set action block-period
 set severity High
 set bot-confirmation enable
@@ -863,7 +866,7 @@ set bot-recognition captcha-enforcement
 set validation-timeout 5
 config url-filter
 edit 1
-set request-file "^/.*\\.(php|asp|aspx|jsp)"
+set request-file '^/.*\\.(php|asp|aspx|jsp)'
 next
 end
 config occurrence
@@ -875,7 +878,7 @@ end
 next
 end
 config waf custom-access policy
-edit "DVWA_CUSTOM_POLICY"
+edit 'DVWA_CUSTOM_POLICY'
 config rule
 edit 1
 set rule-name DVWA_VULNERABILITY_SCANNING
@@ -888,7 +891,7 @@ set threat-weight severe
 next
 end
 config waf http-header-security
-edit "DVWA_HEADER_SECURITY"
+edit 'DVWA_HEADER_SECURITY'
 config http-header-security-list
 edit 1
 set name x-content-type-options
@@ -904,7 +907,7 @@ end
 next
 end
 config waf cookie-security
-edit "DVWA_COOKIE_SECURITY"
+edit 'DVWA_COOKIE_SECURITY'
 config cookie-security-exception-list
 edit 1
 set cookie-name APSCOOKIE*
@@ -922,7 +925,7 @@ set allow-suspicious-cookies Never
 next
 end
 config waf web-protection-profile inline-protection
-edit "DVWA_PROTECTION_PROFILE"
+edit 'DVWA_PROTECTION_PROFILE'
 set url-access-policy DVWA_URL_ACCESS_POLICY
 set signature-rule DVWA_SIGNATURE_PROFILE
 set x-forwarded-for-rule DVWA_X_FORWARDED_FOR
@@ -949,7 +952,7 @@ set bot-mitigate-policy DVWA_BOT_POLICY
 next
 end
 config server-policy policy
-edit "DVWA_POLICY"
+edit 'DVWA_POLICY'
 set ssl enable
 set vserver DVWA_VS
 set service HTTP
@@ -965,3 +968,5 @@ next
 end
 
 ${var_fortiweb_additional}
+"
+}
