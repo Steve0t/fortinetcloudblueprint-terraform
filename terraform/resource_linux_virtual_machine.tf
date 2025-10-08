@@ -48,7 +48,8 @@ resource "azurerm_linux_virtual_machine" "linux_virtual_machine" {
   tags = each.value.tags
 
   depends_on = [
-    azurerm_network_interface.network_interface
+    azurerm_network_interface.network_interface,
+    azurerm_marketplace_agreement.marketplace_agreement
   ]
 }
 
