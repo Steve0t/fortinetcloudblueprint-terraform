@@ -1,5 +1,5 @@
 locals {
-  resource_group_name = var.deployment_prefix
+  resource_group_name = "${var.deployment_prefix}-cloudblueprint-rg"
   location            = var.location != "" ? var.location : "canadacentral"
   vnet_name           = var.vnet_name != "" ? var.vnet_name : "${var.deployment_prefix}-vnet"
 
