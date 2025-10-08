@@ -1,9 +1,9 @@
 resource "azurerm_network_interface" "network_interface" {
   for_each = local.network_interfaces
 
-  name                = each.value.name
-  location            = each.value.location
-  resource_group_name = each.value.resource_group_name
+  name                           = each.value.name
+  location                       = each.value.location
+  resource_group_name            = each.value.resource_group_name
   ip_forwarding_enabled          = each.value.enable_ip_forwarding
   accelerated_networking_enabled = each.value.enable_accelerated_networking
 

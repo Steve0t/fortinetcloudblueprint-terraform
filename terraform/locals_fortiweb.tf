@@ -8,7 +8,7 @@ locals {
   # FortiWeb Network Interfaces (Port 1-2 for both FWB-A and FWB-B)
   #####################################################################
 
-  network_interfaces_fortiweb = var.deploy_fortiweb == "yes" ? {
+  network_interfaces_fortiweb = var.deploy_fortiweb ? {
     # FortiWeb A - Port 1 (External)
     "${var.deployment_prefix}-fwb-a-nic1" = {
       resource_group_name = azurerm_resource_group.resource_group[local.resource_group_name].name
@@ -20,9 +20,9 @@ locals {
 
       ip_configurations = [{
         name                          = "ipconfig1"
-        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet5_name}"].id
+        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_external"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = var.subnet5_start_address
+        private_ip_address            = var.subnets["fortiweb_external"].start_address
         public_ip_address_id          = null
         primary                       = true
       }]
@@ -39,9 +39,9 @@ locals {
 
       ip_configurations = [{
         name                          = "ipconfig1"
-        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet6_name}"].id
+        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_internal"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet6_name}"].address_prefixes[0], tonumber(split(".", var.subnet6_start_address)[3]) + 1)
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_internal"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortiweb_internal"].start_address)[3]) + 1)
         public_ip_address_id          = null
         primary                       = true
       }]
@@ -58,9 +58,9 @@ locals {
 
       ip_configurations = [{
         name                          = "ipconfig1"
-        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet5_name}"].id
+        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_external"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet5_name}"].address_prefixes[0], tonumber(split(".", var.subnet5_start_address)[3]) + 1)
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_external"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortiweb_external"].start_address)[3]) + 1)
         public_ip_address_id          = null
         primary                       = true
       }]
@@ -77,9 +77,9 @@ locals {
 
       ip_configurations = [{
         name                          = "ipconfig1"
-        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet6_name}"].id
+        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_internal"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet6_name}"].address_prefixes[0], tonumber(split(".", var.subnet6_start_address)[3]) + 2)
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_internal"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortiweb_internal"].start_address)[3]) + 2)
         public_ip_address_id          = null
         primary                       = true
       }]
@@ -90,34 +90,34 @@ locals {
   # FortiWeb Virtual Machines
   #####################################################################
 
-  virtual_machines_fortiweb = var.deploy_fortiweb == "yes" ? {
+  virtual_machines_fortiweb = var.deploy_fortiweb ? {
     "${var.deployment_prefix}-fwb-a" = {
       resource_group_name = azurerm_resource_group.resource_group[local.resource_group_name].name
       location            = azurerm_resource_group.resource_group[local.resource_group_name].location
 
       name = "${var.deployment_prefix}-fwb-a"
       size = var.instance_type
-      zone = var.availability_options == "Availability Zones" ? "1" : null
+      zone = var.availability_options == "Availability Zones" ? local.availability_zone_1 : null
 
       admin_username                  = var.admin_username
       admin_password                  = var.admin_password
       disable_password_authentication = false
 
       custom_data = base64encode(templatefile("${path.module}/cloud-init/fortiweb.tpl", {
-        var_admin_password          = var.admin_password
-        var_ha_group_id             = var.fortiweb_ha_group_id
-        var_ha_priority             = 1
-        var_local_port2_ip          = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet6_name}"].address_prefixes[0], tonumber(split(".", var.subnet6_start_address)[3]) + 1)
-        var_peer_port2_ip           = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet6_name}"].address_prefixes[0], tonumber(split(".", var.subnet6_start_address)[3]) + 2)
-        var_subnet6_cidr            = split("/", var.subnet6_prefix)[1]
-        var_vnet_address_prefix     = var.vnet_address_prefix
-        var_subnet6_gateway         = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet6_name}"].address_prefixes[0], 1)
-        var_workload_ip             = var.deploy_dvwa == "yes" ? var.subnet7_start_address : ""
-        var_fortigate_ip            = var.subnet4_start_address
-        var_admin_username          = var.admin_username
-        var_fortiweb_public_ip      = azurerm_public_ip.public_ip["${var.deployment_prefix}-fwb-pip"].ip_address
-        var_deployment_prefix       = var.deployment_prefix
-        var_fortiweb_additional     = var.fortiweb_a_additional_custom_data
+        var_admin_password      = var.admin_password
+        var_ha_group_id         = var.fortiweb_ha_group_id
+        var_ha_priority         = 1
+        var_local_port2_ip      = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_internal"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortiweb_internal"].start_address)[3]) + 1)
+        var_peer_port2_ip       = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_internal"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortiweb_internal"].start_address)[3]) + 2)
+        var_subnet6_cidr        = split("/", var.subnets["fortiweb_internal"].address_prefix)[1]
+        var_vnet_address_prefix = var.vnet_address_prefix
+        var_subnet6_gateway     = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_internal"].name}"].address_prefixes[0], 1)
+        var_workload_ip         = var.deploy_dvwa ? var.subnets["workload"].start_address : ""
+        var_fortigate_ip        = var.subnets["fortigate_management"].start_address
+        var_admin_username      = var.admin_username
+        var_fortiweb_public_ip  = azurerm_public_ip.public_ip["${var.deployment_prefix}-fwb-pip"].ip_address
+        var_deployment_prefix   = var.deployment_prefix
+        var_fortiweb_additional = var.fortiweb_a_additional_custom_data
       }))
 
       network_interface_ids = [
@@ -126,22 +126,22 @@ locals {
       ]
 
       source_image_reference = {
-        publisher = "fortinet"
-        offer     = "fortinet_fortiweb-vm_v5"
+        publisher = local.fortinet_publisher
+        offer     = local.fortiweb_offer
         sku       = var.fortiweb_image_sku
         version   = var.fortiweb_image_version
       }
 
       plan = {
-        publisher = "fortinet"
-        product   = "fortinet_fortiweb-vm_v5"
+        publisher = local.fortinet_publisher
+        product   = local.fortiweb_product
         name      = var.fortiweb_image_sku
       }
 
       os_disk = {
         name                 = "${var.deployment_prefix}-fwb-a-osdisk"
         caching              = "ReadWrite"
-        storage_account_type = "Standard_LRS"
+        storage_account_type = local.standard_lrs
       }
 
       data_disks = [{
@@ -150,10 +150,10 @@ locals {
         caching              = "ReadWrite"
         create_option        = "Empty"
         disk_size_gb         = 30
-        storage_account_type = "Standard_LRS"
+        storage_account_type = local.standard_lrs
       }]
 
-      boot_diagnostics_enabled = var.fwb_serial_console == "yes"
+      boot_diagnostics_enabled = var.fortiweb_serial_console_enabled
 
       identity_type = "SystemAssigned"
 
@@ -166,27 +166,27 @@ locals {
 
       name = "${var.deployment_prefix}-fwb-b"
       size = var.instance_type
-      zone = var.availability_options == "Availability Zones" ? "2" : null
+      zone = var.availability_options == "Availability Zones" ? local.availability_zone_2 : null
 
       admin_username                  = var.admin_username
       admin_password                  = var.admin_password
       disable_password_authentication = false
 
       custom_data = base64encode(templatefile("${path.module}/cloud-init/fortiweb.tpl", {
-        var_admin_password          = var.admin_password
-        var_ha_group_id             = var.fortiweb_ha_group_id
-        var_ha_priority             = 2
-        var_local_port2_ip          = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet6_name}"].address_prefixes[0], tonumber(split(".", var.subnet6_start_address)[3]) + 2)
-        var_peer_port2_ip           = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet6_name}"].address_prefixes[0], tonumber(split(".", var.subnet6_start_address)[3]) + 1)
-        var_subnet6_cidr            = split("/", var.subnet6_prefix)[1]
-        var_vnet_address_prefix     = var.vnet_address_prefix
-        var_subnet6_gateway         = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet6_name}"].address_prefixes[0], 1)
-        var_workload_ip             = var.deploy_dvwa == "yes" ? var.subnet7_start_address : ""
-        var_fortigate_ip            = var.subnet4_start_address
-        var_admin_username          = var.admin_username
-        var_fortiweb_public_ip      = azurerm_public_ip.public_ip["${var.deployment_prefix}-fwb-pip"].ip_address
-        var_deployment_prefix       = var.deployment_prefix
-        var_fortiweb_additional     = var.fortiweb_b_additional_custom_data
+        var_admin_password      = var.admin_password
+        var_ha_group_id         = var.fortiweb_ha_group_id
+        var_ha_priority         = 2
+        var_local_port2_ip      = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_internal"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortiweb_internal"].start_address)[3]) + 2)
+        var_peer_port2_ip       = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_internal"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortiweb_internal"].start_address)[3]) + 1)
+        var_subnet6_cidr        = split("/", var.subnets["fortiweb_internal"].address_prefix)[1]
+        var_vnet_address_prefix = var.vnet_address_prefix
+        var_subnet6_gateway     = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_internal"].name}"].address_prefixes[0], 1)
+        var_workload_ip         = var.deploy_dvwa ? var.subnets["workload"].start_address : ""
+        var_fortigate_ip        = var.subnets["fortigate_management"].start_address
+        var_admin_username      = var.admin_username
+        var_fortiweb_public_ip  = azurerm_public_ip.public_ip["${var.deployment_prefix}-fwb-pip"].ip_address
+        var_deployment_prefix   = var.deployment_prefix
+        var_fortiweb_additional = var.fortiweb_b_additional_custom_data
       }))
 
       network_interface_ids = [
@@ -195,22 +195,22 @@ locals {
       ]
 
       source_image_reference = {
-        publisher = "fortinet"
-        offer     = "fortinet_fortiweb-vm_v5"
+        publisher = local.fortinet_publisher
+        offer     = local.fortiweb_offer
         sku       = var.fortiweb_image_sku
         version   = var.fortiweb_image_version
       }
 
       plan = {
-        publisher = "fortinet"
-        product   = "fortinet_fortiweb-vm_v5"
+        publisher = local.fortinet_publisher
+        product   = local.fortiweb_product
         name      = var.fortiweb_image_sku
       }
 
       os_disk = {
         name                 = "${var.deployment_prefix}-fwb-b-osdisk"
         caching              = "ReadWrite"
-        storage_account_type = "Standard_LRS"
+        storage_account_type = local.standard_lrs
       }
 
       data_disks = [{
@@ -219,10 +219,10 @@ locals {
         caching              = "ReadWrite"
         create_option        = "Empty"
         disk_size_gb         = 30
-        storage_account_type = "Standard_LRS"
+        storage_account_type = local.standard_lrs
       }]
 
-      boot_diagnostics_enabled = var.fwb_serial_console == "yes"
+      boot_diagnostics_enabled = var.fortiweb_serial_console_enabled
 
       identity_type = "SystemAssigned"
 

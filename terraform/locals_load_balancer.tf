@@ -20,10 +20,10 @@ locals {
         tags                = var.fortinet_tags
 
         frontend_ip_configurations = [{
-          name                          = "${var.deployment_prefix}-ILB-${var.subnet2_name}-FrontEnd"
+          name                          = "${var.deployment_prefix}-ILB-${var.subnets["fortigate_internal"].name}-FrontEnd"
           public_ip_address_id          = null
-          subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet2_name}"].id
-          private_ip_address            = var.subnet2_start_address
+          subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_internal"].name}"].id
+          private_ip_address            = var.subnets["fortigate_internal"].start_address
           private_ip_address_allocation = "Static"
         }]
       }
@@ -37,7 +37,7 @@ locals {
         tags                = var.fortinet_tags
 
         frontend_ip_configurations = [{
-          name                          = "${var.deployment_prefix}-ELB-${var.subnet1_name}-FrontEnd"
+          name                          = "${var.deployment_prefix}-ELB-${var.subnets["fortigate_external"].name}-FrontEnd"
           public_ip_address_id          = azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-pip"].id
           subnet_id                     = null
           private_ip_address            = null
@@ -46,7 +46,7 @@ locals {
       }
     },
     # FortiWeb External Load Balancer (conditional)
-    var.deploy_fortiweb == "yes" ? {
+    var.deploy_fortiweb ? {
       "${var.deployment_prefix}-fortiweb-external-lb" = {
         name                = "${var.deployment_prefix}-FWB-ELB"
         location            = azurerm_resource_group.resource_group[local.resource_group_name].location
@@ -72,15 +72,15 @@ locals {
   lb_backend_address_pools = merge(
     {
       "${var.deployment_prefix}-internal-lb-backend" = {
-        name            = "${var.deployment_prefix}-ILB-${var.subnet2_name}-BackEnd"
+        name            = "${var.deployment_prefix}-ILB-${var.subnets["fortigate_internal"].name}-BackEnd"
         loadbalancer_id = azurerm_lb.load_balancer["${var.deployment_prefix}-internal-lb"].id
       }
       "${var.deployment_prefix}-external-lb-backend" = {
-        name            = "${var.deployment_prefix}-ELB-${var.subnet1_name}-BackEnd"
+        name            = "${var.deployment_prefix}-ELB-${var.subnets["fortigate_external"].name}-BackEnd"
         loadbalancer_id = azurerm_lb.load_balancer["${var.deployment_prefix}-external-lb"].id
       }
     },
-    var.deploy_fortiweb == "yes" ? {
+    var.deploy_fortiweb ? {
       "${var.deployment_prefix}-fortiweb-external-lb-backend" = {
         name            = "${var.deployment_prefix}-FWB-ELB-BackEnd"
         loadbalancer_id = azurerm_lb.load_balancer["${var.deployment_prefix}-fortiweb-external-lb"].id
@@ -98,7 +98,7 @@ locals {
         name            = "lbprobe"
         loadbalancer_id = azurerm_lb.load_balancer["${var.deployment_prefix}-internal-lb"].id
         protocol        = "Tcp"
-        port            = 8008
+        port            = var.fortigate_probe_port
         interval        = 5
         probe_threshold = 2
       }
@@ -106,17 +106,17 @@ locals {
         name            = "lbprobe"
         loadbalancer_id = azurerm_lb.load_balancer["${var.deployment_prefix}-external-lb"].id
         protocol        = "Tcp"
-        port            = 8008
+        port            = var.fortigate_probe_port
         interval        = 5
         probe_threshold = 2
       }
     },
-    var.deploy_fortiweb == "yes" ? {
+    var.deploy_fortiweb ? {
       "${var.deployment_prefix}-fortiweb-external-lb-probe-http" = {
         name            = "lbprobe-http"
         loadbalancer_id = azurerm_lb.load_balancer["${var.deployment_prefix}-fortiweb-external-lb"].id
         protocol        = "Tcp"
-        port            = 8080
+        port            = var.fortiweb_http_probe_port
         interval        = 15
         probe_threshold = 2
       }
@@ -124,7 +124,7 @@ locals {
         name            = "lbprobe-https"
         loadbalancer_id = azurerm_lb.load_balancer["${var.deployment_prefix}-fortiweb-external-lb"].id
         protocol        = "Tcp"
-        port            = 8443
+        port            = var.fortiweb_https_probe_port
         interval        = 15
         probe_threshold = 2
       }
@@ -141,7 +141,7 @@ locals {
       "${var.deployment_prefix}-internal-lb-rule-ha" = {
         name                           = "lbruleFEall"
         loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-internal-lb"].id
-        frontend_ip_configuration_name = "${var.deployment_prefix}-ILB-${var.subnet2_name}-FrontEnd"
+        frontend_ip_configuration_name = "${var.deployment_prefix}-ILB-${var.subnets["fortigate_internal"].name}-FrontEnd"
         backend_address_pool_ids       = [azurerm_lb_backend_address_pool.lb_backend_address_pool["${var.deployment_prefix}-internal-lb-backend"].id]
         probe_id                       = azurerm_lb_probe.lb_probe["${var.deployment_prefix}-internal-lb-probe"].id
         protocol                       = "All"
@@ -152,11 +152,11 @@ locals {
       }
     },
     # External LB Rules - Workload Container Ports
-    var.deploy_dvwa == "yes" ? {
+    var.deploy_dvwa ? {
       "${var.deployment_prefix}-external-lb-rule-ssh" = {
         name                           = "ExternalLBRule-FE-ssh"
         loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-external-lb"].id
-        frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnet1_name}-FrontEnd"
+        frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnets["fortigate_external"].name}-FrontEnd"
         backend_address_pool_ids       = [azurerm_lb_backend_address_pool.lb_backend_address_pool["${var.deployment_prefix}-external-lb-backend"].id]
         probe_id                       = azurerm_lb_probe.lb_probe["${var.deployment_prefix}-external-lb-probe"].id
         protocol                       = "Tcp"
@@ -168,7 +168,7 @@ locals {
       "${var.deployment_prefix}-external-lb-rule-dvwa" = {
         name                           = "ExternalLBRule-FE-dvwa"
         loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-external-lb"].id
-        frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnet1_name}-FrontEnd"
+        frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnets["fortigate_external"].name}-FrontEnd"
         backend_address_pool_ids       = [azurerm_lb_backend_address_pool.lb_backend_address_pool["${var.deployment_prefix}-external-lb-backend"].id]
         probe_id                       = azurerm_lb_probe.lb_probe["${var.deployment_prefix}-external-lb-probe"].id
         protocol                       = "Tcp"
@@ -180,7 +180,7 @@ locals {
       "${var.deployment_prefix}-external-lb-rule-bank" = {
         name                           = "ExternalLBRule-FE-bank"
         loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-external-lb"].id
-        frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnet1_name}-FrontEnd"
+        frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnets["fortigate_external"].name}-FrontEnd"
         backend_address_pool_ids       = [azurerm_lb_backend_address_pool.lb_backend_address_pool["${var.deployment_prefix}-external-lb-backend"].id]
         probe_id                       = azurerm_lb_probe.lb_probe["${var.deployment_prefix}-external-lb-probe"].id
         protocol                       = "Tcp"
@@ -192,7 +192,7 @@ locals {
       "${var.deployment_prefix}-external-lb-rule-juice" = {
         name                           = "ExternalLBRule-FE-juice"
         loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-external-lb"].id
-        frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnet1_name}-FrontEnd"
+        frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnets["fortigate_external"].name}-FrontEnd"
         backend_address_pool_ids       = [azurerm_lb_backend_address_pool.lb_backend_address_pool["${var.deployment_prefix}-external-lb-backend"].id]
         probe_id                       = azurerm_lb_probe.lb_probe["${var.deployment_prefix}-external-lb-probe"].id
         protocol                       = "Tcp"
@@ -204,7 +204,7 @@ locals {
       "${var.deployment_prefix}-external-lb-rule-petstore" = {
         name                           = "ExternalLBRule-FE-petstore"
         loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-external-lb"].id
-        frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnet1_name}-FrontEnd"
+        frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnets["fortigate_external"].name}-FrontEnd"
         backend_address_pool_ids       = [azurerm_lb_backend_address_pool.lb_backend_address_pool["${var.deployment_prefix}-external-lb-backend"].id]
         probe_id                       = azurerm_lb_probe.lb_probe["${var.deployment_prefix}-external-lb-probe"].id
         protocol                       = "Tcp"
@@ -216,7 +216,7 @@ locals {
       "${var.deployment_prefix}-external-lb-rule-udp10551" = {
         name                           = "ExternalLBRule-FE-udp10551"
         loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-external-lb"].id
-        frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnet1_name}-FrontEnd"
+        frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnets["fortigate_external"].name}-FrontEnd"
         backend_address_pool_ids       = [azurerm_lb_backend_address_pool.lb_backend_address_pool["${var.deployment_prefix}-external-lb-backend"].id]
         probe_id                       = azurerm_lb_probe.lb_probe["${var.deployment_prefix}-external-lb-probe"].id
         protocol                       = "Udp"
@@ -227,7 +227,7 @@ locals {
       }
     } : {},
     # FortiWeb External LB Rules
-    var.deploy_fortiweb == "yes" ? {
+    var.deploy_fortiweb ? {
       "${var.deployment_prefix}-fortiweb-external-lb-rule-http" = {
         name                           = "PublicLBRule-FE1-http"
         loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-fortiweb-external-lb"].id
@@ -262,45 +262,45 @@ locals {
   lb_nat_rules = merge(
     # FortiGate NAT Rules (only when no mgmt public IPs)
     var.enable_fortigate_mgmt_public_ips ? {} : {
-    "${var.deployment_prefix}-nat-fgt-a-ssh" = {
-      name                           = "${var.deployment_prefix}-fgt-a-SSH"
-      loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-external-lb"].id
-      frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnet1_name}-FrontEnd"
-      protocol                       = "Tcp"
-      frontend_port                  = 50030
-      backend_port                   = 22
-      enable_floating_ip             = false
-    }
-    "${var.deployment_prefix}-nat-fgt-a-https" = {
-      name                           = "${var.deployment_prefix}-fgt-a-FGAdminPerm"
-      loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-external-lb"].id
-      frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnet1_name}-FrontEnd"
-      protocol                       = "Tcp"
-      frontend_port                  = 40030
-      backend_port                   = 443
-      enable_floating_ip             = false
-    }
-    "${var.deployment_prefix}-nat-fgt-b-ssh" = {
-      name                           = "${var.deployment_prefix}-fgt-b-SSH"
-      loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-external-lb"].id
-      frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnet1_name}-FrontEnd"
-      protocol                       = "Tcp"
-      frontend_port                  = 50031
-      backend_port                   = 22
-      enable_floating_ip             = false
-    }
-    "${var.deployment_prefix}-nat-fgt-b-https" = {
-      name                           = "${var.deployment_prefix}-fgt-b-FGAdminPerm"
-      loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-external-lb"].id
-      frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnet1_name}-FrontEnd"
-      protocol                       = "Tcp"
-      frontend_port                  = 40031
-      backend_port                   = 443
-      enable_floating_ip             = false
-    }
+      "${var.deployment_prefix}-nat-fgt-a-ssh" = {
+        name                           = "${var.deployment_prefix}-fgt-a-SSH"
+        loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-external-lb"].id
+        frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnets["fortigate_external"].name}-FrontEnd"
+        protocol                       = "Tcp"
+        frontend_port                  = 50030
+        backend_port                   = 22
+        enable_floating_ip             = false
+      }
+      "${var.deployment_prefix}-nat-fgt-a-https" = {
+        name                           = "${var.deployment_prefix}-fgt-a-FGAdminPerm"
+        loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-external-lb"].id
+        frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnets["fortigate_external"].name}-FrontEnd"
+        protocol                       = "Tcp"
+        frontend_port                  = 40030
+        backend_port                   = 443
+        enable_floating_ip             = false
+      }
+      "${var.deployment_prefix}-nat-fgt-b-ssh" = {
+        name                           = "${var.deployment_prefix}-fgt-b-SSH"
+        loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-external-lb"].id
+        frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnets["fortigate_external"].name}-FrontEnd"
+        protocol                       = "Tcp"
+        frontend_port                  = 50031
+        backend_port                   = 22
+        enable_floating_ip             = false
+      }
+      "${var.deployment_prefix}-nat-fgt-b-https" = {
+        name                           = "${var.deployment_prefix}-fgt-b-FGAdminPerm"
+        loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-external-lb"].id
+        frontend_ip_configuration_name = "${var.deployment_prefix}-ELB-${var.subnets["fortigate_external"].name}-FrontEnd"
+        protocol                       = "Tcp"
+        frontend_port                  = 40031
+        backend_port                   = 443
+        enable_floating_ip             = false
+      }
     },
     # FortiWeb NAT Rules (always when FortiWeb deployed)
-    var.deploy_fortiweb == "yes" ? {
+    var.deploy_fortiweb ? {
       "${var.deployment_prefix}-nat-fwb-a-ssh" = {
         name                           = "${var.deployment_prefix}-fwb-a-SSH"
         loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-fortiweb-external-lb"].id
@@ -316,7 +316,7 @@ locals {
         frontend_ip_configuration_name = "${var.deployment_prefix}-FWB-ELB-FrontEnd"
         protocol                       = "Tcp"
         frontend_port                  = 40030
-        backend_port                   = 8443
+        backend_port                   = var.fortiweb_https_probe_port
         enable_floating_ip             = false
       }
       "${var.deployment_prefix}-nat-fwb-b-ssh" = {
@@ -334,7 +334,7 @@ locals {
         frontend_ip_configuration_name = "${var.deployment_prefix}-FWB-ELB-FrontEnd"
         protocol                       = "Tcp"
         frontend_port                  = 40031
-        backend_port                   = 8443
+        backend_port                   = var.fortiweb_https_probe_port
         enable_floating_ip             = false
       }
     } : {}
@@ -372,7 +372,7 @@ locals {
       }
     },
     # FortiWeb Backend Pool Associations
-    var.deploy_fortiweb == "yes" ? {
+    var.deploy_fortiweb ? {
       "${var.deployment_prefix}-fwb-a-nic1-external-lb" = {
         network_interface_id    = azurerm_network_interface.network_interface["${var.deployment_prefix}-fwb-a-nic1"].id
         ip_configuration_name   = "ipconfig1"
@@ -415,7 +415,7 @@ locals {
       }
     },
     # FortiWeb NAT associations (always when FortiWeb deployed)
-    var.deploy_fortiweb == "yes" ? {
+    var.deploy_fortiweb ? {
       "${var.deployment_prefix}-fwb-a-nic1-nat-ssh" = {
         network_interface_id  = azurerm_network_interface.network_interface["${var.deployment_prefix}-fwb-a-nic1"].id
         ip_configuration_name = "ipconfig1"
