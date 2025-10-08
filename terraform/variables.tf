@@ -379,7 +379,7 @@ variable "fortiweb_serial_console_enabled" {
 }
 
 #####################################################################
-# DVWA Configuration
+# Workload Configuration
 #####################################################################
 
 variable "workload_serial_console_enabled" {
@@ -395,7 +395,7 @@ variable "workload_serial_console_enabled" {
 variable "enable_output" {
   description = "Enable/Disable detailed outputs"
   type        = bool
-  default     = false
+  default     = true
 }
 
 #####################################################################
