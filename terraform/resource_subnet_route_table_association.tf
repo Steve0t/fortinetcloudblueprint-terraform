@@ -10,7 +10,3 @@ resource "azurerm_subnet_route_table_association" "subnet_route_table_associatio
     azurerm_route.route
   ]
 }
-
-output "subnet_route_table_associations" {
-  value = var.enable_output ? azurerm_subnet_route_table_association.subnet_route_table_association[*] : null
-}

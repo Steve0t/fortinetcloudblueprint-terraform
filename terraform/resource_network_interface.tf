@@ -24,7 +24,3 @@ resource "azurerm_network_interface" "network_interface" {
     azurerm_public_ip.public_ip
   ]
 }
-
-output "network_interfaces" {
-  value = var.enable_output ? azurerm_network_interface.network_interface[*] : null
-}

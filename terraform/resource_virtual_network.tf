@@ -9,7 +9,3 @@ resource "azurerm_virtual_network" "virtual_network" {
 
   depends_on = [azurerm_resource_group.resource_group]
 }
-
-output "virtual_networks" {
-  value = var.enable_output ? azurerm_virtual_network.virtual_network[*] : null
-}

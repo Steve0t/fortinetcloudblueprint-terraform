@@ -10,7 +10,3 @@ resource "azurerm_route" "route" {
 
   depends_on = [azurerm_route_table.route_table]
 }
-
-output "routes" {
-  value = var.enable_output ? azurerm_route.route[*] : null
-}

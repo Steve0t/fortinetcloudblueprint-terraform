@@ -10,7 +10,3 @@ resource "azurerm_public_ip" "public_ip" {
 
   depends_on = [azurerm_resource_group.resource_group]
 }
-
-output "public_ips" {
-  value = var.enable_output ? azurerm_public_ip.public_ip[*] : null
-}

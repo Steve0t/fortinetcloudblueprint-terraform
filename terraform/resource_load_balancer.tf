@@ -23,7 +23,3 @@ resource "azurerm_lb" "load_balancer" {
     azurerm_public_ip.public_ip
   ]
 }
-
-output "load_balancers" {
-  value = var.enable_output ? azurerm_lb.load_balancer[*] : null
-}

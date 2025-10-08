@@ -26,7 +26,3 @@ resource "azurerm_network_security_group" "network_security_group" {
     azurerm_resource_group.resource_group
   ]
 }
-
-output "network_security_groups" {
-  value = var.enable_output ? azurerm_network_security_group.network_security_group[*] : null
-}

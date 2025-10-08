@@ -8,7 +8,3 @@ resource "azurerm_subnet" "subnet" {
 
   depends_on = [azurerm_virtual_network.virtual_network]
 }
-
-output "subnets" {
-  value = var.enable_output ? azurerm_subnet.subnet[*] : null
-}

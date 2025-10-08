@@ -8,7 +8,3 @@ resource "azurerm_route_table" "route_table" {
 
   depends_on = [azurerm_resource_group.resource_group]
 }
-
-output "route_tables" {
-  value = var.enable_output ? azurerm_route_table.route_table[*] : null
-}
