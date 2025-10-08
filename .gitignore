@@ -67,11 +67,6 @@ secrets/
 # Ignore generated documentation
 .terraform-docs/
 
-# Ignore hard-coded variables
-variables.auto.tfvars
-
+#ignore context
 CLAUDE.md
-FTNT_DEMO_ANALYSIS.md
-SIMPLIFICATION.md
-STYLE_GUIDE.md
 context/
