@@ -120,17 +120,17 @@ output "connection_information" {
   description = "URLs and connection details for accessing deployed services"
   value = {
     fortigate = {
-      public_ip    = azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-pip"].ip_address
-      admin_user   = var.admin_username
-      mgmt_a_ip    = var.enable_fortigate_mgmt_public_ips ? azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-a-mgmt-pip"].ip_address : "Not enabled"
-      mgmt_b_ip    = var.enable_fortigate_mgmt_public_ips ? azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-b-mgmt-pip"].ip_address : "Not enabled"
-      internal_lb  = azurerm_lb.load_balancer["${var.deployment_prefix}-internal-lb"].frontend_ip_configuration[0].private_ip_address
+      public_ip   = azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-pip"].ip_address
+      admin_user  = var.admin_username
+      mgmt_a_ip   = var.enable_fortigate_mgmt_public_ips ? azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-a-mgmt-pip"].ip_address : "Not enabled"
+      mgmt_b_ip   = var.enable_fortigate_mgmt_public_ips ? azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-b-mgmt-pip"].ip_address : "Not enabled"
+      internal_lb = azurerm_lb.load_balancer["${var.deployment_prefix}-internal-lb"].frontend_ip_configuration[0].private_ip_address
     }
 
     fortiweb = var.deploy_fortiweb ? {
-      public_ip = azurerm_public_ip.public_ip["${var.deployment_prefix}-fwb-pip"].ip_address
-      mgmt_fwb_a  = "https://${azurerm_public_ip.public_ip["${var.deployment_prefix}-fwb-pip"].ip_address}:40030"
-      mgmt_fwb_b  = "https://${azurerm_public_ip.public_ip["${var.deployment_prefix}-fwb-pip"].ip_address}:40031"
+      public_ip  = azurerm_public_ip.public_ip["${var.deployment_prefix}-fwb-pip"].ip_address
+      mgmt_fwb_a = "https://${azurerm_public_ip.public_ip["${var.deployment_prefix}-fwb-pip"].ip_address}:40030"
+      mgmt_fwb_b = "https://${azurerm_public_ip.public_ip["${var.deployment_prefix}-fwb-pip"].ip_address}:40031"
       admin_user = var.admin_username
     } : null
 
@@ -143,12 +143,12 @@ output "connection_information" {
 output "deployment_summary" {
   description = "Summary of deployed resources"
   value = {
-    deployment_prefix    = var.deployment_prefix
-    location             = local.location
-    fortigate_deployed   = true
-    fortiweb_deployed    = var.deploy_fortiweb
-    workload_deployed    = var.deploy_dvwa
-    fortigate_mgmt_ips   = var.enable_fortigate_mgmt_public_ips
-    availability_option  = var.availability_options
+    deployment_prefix   = var.deployment_prefix
+    location            = local.location
+    fortigate_deployed  = true
+    fortiweb_deployed   = var.deploy_fortiweb
+    workload_deployed   = var.deploy_dvwa
+    fortigate_mgmt_ips  = var.enable_fortigate_mgmt_public_ips
+    availability_option = var.availability_options
   }
 }
