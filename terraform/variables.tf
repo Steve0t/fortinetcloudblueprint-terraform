@@ -392,10 +392,10 @@ variable "workload_serial_console_enabled" {
 # Output Control
 #####################################################################
 
-variable "enable_output" {
-  description = "Enable/Disable detailed outputs"
+variable "debug_outputs" {
+  description = "Enable verbose debug outputs showing full resource details (subnets, NICs, NSGs, etc.). User-friendly connection information is always displayed regardless of this setting."
   type        = bool
-  default     = true
+  default     = false
 }
 
 #####################################################################
