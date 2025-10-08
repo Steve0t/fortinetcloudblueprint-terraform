@@ -12,7 +12,7 @@ locals {
   # Workload Network Interface
   #####################################################################
 
-  network_interfaces_workload = var.deploy_dvwa == "yes" ? {
+  network_interfaces_workload = var.deploy_dvwa ? {
     "${var.deployment_prefix}-workload-nic" = {
       resource_group_name = azurerm_resource_group.resource_group[local.resource_group_name].name
       location            = azurerm_resource_group.resource_group[local.resource_group_name].location
@@ -23,9 +23,9 @@ locals {
 
       ip_configurations = [{
         name                          = "ipconfig1"
-        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet7_name}"].id
+        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["workload"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = var.subnet7_start_address
+        private_ip_address            = var.subnets["workload"].start_address
         public_ip_address_id          = null
         primary                       = true
       }]
@@ -36,7 +36,7 @@ locals {
   # Workload Virtual Machine
   #####################################################################
 
-  virtual_machines_workload = var.deploy_dvwa == "yes" ? {
+  virtual_machines_workload = var.deploy_dvwa ? {
     "${var.deployment_prefix}-workload" = {
       resource_group_name = azurerm_resource_group.resource_group[local.resource_group_name].name
       location            = azurerm_resource_group.resource_group[local.resource_group_name].location
@@ -71,10 +71,10 @@ locals {
       os_disk = {
         name                 = "${var.deployment_prefix}-workload-osdisk"
         caching              = "ReadWrite"
-        storage_account_type = "Standard_LRS"
+        storage_account_type = local.standard_lrs
       }
 
-      boot_diagnostics_enabled = var.dvwa_serial_console == "yes"
+      boot_diagnostics_enabled = var.dvwa_serial_console
 
       identity_type = "SystemAssigned"
 

@@ -23,12 +23,12 @@ config router static
  set device port2
  next
  edit 3
-set dst 168.63.129.16 255.255.255.255
+set dst ${var_azure_metadata_ip} 255.255.255.255
 set device port2
  set gateway ${var_sn2_gateway}
  next
 edit 4
-set dst 168.63.129.16 255.255.255.255
+set dst ${var_azure_metadata_ip} 255.255.255.255
 set device port1
  set gateway ${var_sn1_gateway}
  next
@@ -84,7 +84,7 @@ set device port1
  set unicast-hb enable
  set unicast-hb-peerip ${var_ha_peer_ip}
  end
-%{ if var_deploy_dvwa == "yes" ~}
+%{ if var_deploy_dvwa ~}
 config firewall vip
 edit "workload-SSH-VIP"
 set extip ${var_fgt_external_ipaddress}
@@ -245,7 +245,7 @@ config firewall policy
     next
 end
 %{ endif ~}
-%{ if var_fortimanager == "yes" ~}
+%{ if var_fortimanager ~}
 config system central-management
 set type fortimanager
  set fmg ${var_fortimanager_ip}

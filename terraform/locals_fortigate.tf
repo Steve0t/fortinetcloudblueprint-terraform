@@ -15,9 +15,9 @@ locals {
 
       ip_configurations = [{
         name                          = "ipconfig1"
-        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet1_name}"].id
+        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_external"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = var.subnet1_start_address
+        private_ip_address            = var.subnets["fortigate_external"].start_address
         public_ip_address_id          = null
         primary                       = true
       }]
@@ -33,9 +33,9 @@ locals {
 
       ip_configurations = [{
         name                          = "ipconfig1"
-        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet2_name}"].id
+        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_internal"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet2_name}"].address_prefixes[0], tonumber(split(".", var.subnet2_start_address)[3]) + 1)
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_internal"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortigate_internal"].start_address)[3]) + 1)
         public_ip_address_id          = null
         primary                       = true
       }]
@@ -51,9 +51,9 @@ locals {
 
       ip_configurations = [{
         name                          = "ipconfig1"
-        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet3_name}"].id
+        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_ha"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = var.subnet3_start_address
+        private_ip_address            = var.subnets["fortigate_ha"].start_address
         public_ip_address_id          = null
         primary                       = true
       }]
@@ -69,9 +69,9 @@ locals {
 
       ip_configurations = [{
         name                          = "ipconfig1"
-        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet4_name}"].id
+        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_management"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = var.subnet4_start_address
+        private_ip_address            = var.subnets["fortigate_management"].start_address
         public_ip_address_id          = var.enable_fortigate_mgmt_public_ips ? azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-a-mgmt-pip"].id : null
         primary                       = true
       }]
@@ -87,9 +87,9 @@ locals {
 
       ip_configurations = [{
         name                          = "ipconfig1"
-        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet1_name}"].id
+        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_external"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet1_name}"].address_prefixes[0], tonumber(split(".", var.subnet1_start_address)[3]) + 1)
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_external"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortigate_external"].start_address)[3]) + 1)
         public_ip_address_id          = null
         primary                       = true
       }]
@@ -105,9 +105,9 @@ locals {
 
       ip_configurations = [{
         name                          = "ipconfig1"
-        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet2_name}"].id
+        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_internal"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet2_name}"].address_prefixes[0], tonumber(split(".", var.subnet2_start_address)[3]) + 2)
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_internal"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortigate_internal"].start_address)[3]) + 2)
         public_ip_address_id          = null
         primary                       = true
       }]
@@ -123,9 +123,9 @@ locals {
 
       ip_configurations = [{
         name                          = "ipconfig1"
-        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet3_name}"].id
+        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_ha"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet3_name}"].address_prefixes[0], tonumber(split(".", var.subnet3_start_address)[3]) + 1)
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_ha"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortigate_ha"].start_address)[3]) + 1)
         public_ip_address_id          = null
         primary                       = true
       }]
@@ -141,9 +141,9 @@ locals {
 
       ip_configurations = [{
         name                          = "ipconfig1"
-        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet4_name}"].id
+        subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_management"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet4_name}"].address_prefixes[0], tonumber(split(".", var.subnet4_start_address)[3]) + 1)
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_management"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortigate_management"].start_address)[3]) + 1)
         public_ip_address_id          = var.enable_fortigate_mgmt_public_ips ? azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-b-mgmt-pip"].id : null
         primary                       = true
       }]
@@ -161,7 +161,7 @@ locals {
 
       name = "${var.deployment_prefix}-fgt-a"
       size = var.instance_type
-      zone = var.availability_options == "Availability Zones" ? "1" : null
+      zone = var.availability_options == "Availability Zones" ? local.availability_zone_1 : null
 
       admin_username                  = var.admin_username
       admin_password                  = var.admin_password
@@ -170,25 +170,25 @@ locals {
       custom_data = base64encode(templatefile("${path.module}/cloud-init/fortigate.tpl", {
         var_hostname                    = "${var.deployment_prefix}-fgt-a"
         var_vnet_address_prefix         = var.vnet_address_prefix
-        var_subnet1_name                = var.subnet1_name
-        var_subnet2_name                = var.subnet2_name
-        var_subnet3_name                = var.subnet3_name
-        var_subnet4_name                = var.subnet4_name
-        var_sn1_gateway                 = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet1_name}"].address_prefixes[0], 1)
-        var_sn2_gateway                 = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet2_name}"].address_prefixes[0], 1)
-        var_sn4_gateway                 = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet4_name}"].address_prefixes[0], 1)
+        var_subnet1_name                = var.subnets["fortigate_external"].name
+        var_subnet2_name                = var.subnets["fortigate_internal"].name
+        var_subnet3_name                = var.subnets["fortigate_ha"].name
+        var_subnet4_name                = var.subnets["fortigate_management"].name
+        var_sn1_gateway                 = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_external"].name}"].address_prefixes[0], 1)
+        var_sn2_gateway                 = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_internal"].name}"].address_prefixes[0], 1)
+        var_sn4_gateway                 = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_management"].name}"].address_prefixes[0], 1)
         var_port1_ip                    = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-a-nic1"].private_ip_address
-        var_port1_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet1_name}"].address_prefixes[0])
+        var_port1_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_external"].name}"].address_prefixes[0])
         var_port2_ip                    = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-a-nic2"].private_ip_address
-        var_port2_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet2_name}"].address_prefixes[0])
+        var_port2_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_internal"].name}"].address_prefixes[0])
         var_port3_ip                    = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-a-nic3"].private_ip_address
-        var_port3_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet3_name}"].address_prefixes[0])
+        var_port3_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_ha"].name}"].address_prefixes[0])
         var_port4_ip                    = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-a-nic4"].private_ip_address
-        var_port4_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet4_name}"].address_prefixes[0])
+        var_port4_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_management"].name}"].address_prefixes[0])
         var_ha_priority                 = 255
         var_ha_peer_ip                  = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-b-nic3"].private_ip_address
         var_fgt_external_ipaddress      = azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-pip"].ip_address
-        var_dvwa_vm_ip                  = var.deploy_dvwa == "yes" ? var.subnet7_start_address : ""
+        var_dvwa_vm_ip                  = var.deploy_dvwa ? var.subnets["workload"].start_address : ""
         var_deploy_dvwa                 = var.deploy_dvwa
         var_fortimanager                = var.fortimanager
         var_fortimanager_ip             = var.fortimanager_ip
@@ -196,6 +196,7 @@ locals {
         var_fortigate_license_byol      = var.fortigate_license_byol_a
         var_fortigate_license_flexvm    = var.fortigate_license_flexvm_a
         var_fortigate_additional_config = var.fortigate_additional_custom_data
+        var_azure_metadata_ip           = var.azure_metadata_ip
       }))
 
       network_interface_ids = [
@@ -206,25 +207,25 @@ locals {
       ]
 
       source_image_reference = {
-        publisher = "fortinet"
-        offer     = "fortinet_fortigate-vm_v5"
+        publisher = local.fortinet_publisher
+        offer     = local.fortigate_offer
         sku       = var.fortigate_image_sku
         version   = var.fortigate_image_version
       }
 
       plan = {
-        publisher = "fortinet"
-        product   = "fortinet_fortigate-vm_v5"
+        publisher = local.fortinet_publisher
+        product   = local.fortigate_product
         name      = var.fortigate_image_sku
       }
 
       os_disk = {
         name                 = "${var.deployment_prefix}-fgt-a-osdisk"
         caching              = "ReadWrite"
-        storage_account_type = "Standard_LRS"
+        storage_account_type = local.standard_lrs
       }
 
-      boot_diagnostics_enabled = var.fgt_serial_console == "yes"
+      boot_diagnostics_enabled = var.fgt_serial_console
 
       identity_type = "SystemAssigned"
 
@@ -236,7 +237,7 @@ locals {
 
       name = "${var.deployment_prefix}-fgt-b"
       size = var.instance_type
-      zone = var.availability_options == "Availability Zones" ? "2" : null
+      zone = var.availability_options == "Availability Zones" ? local.availability_zone_2 : null
 
       admin_username                  = var.admin_username
       admin_password                  = var.admin_password
@@ -245,25 +246,25 @@ locals {
       custom_data = base64encode(templatefile("${path.module}/cloud-init/fortigate.tpl", {
         var_hostname                    = "${var.deployment_prefix}-fgt-b"
         var_vnet_address_prefix         = var.vnet_address_prefix
-        var_subnet1_name                = var.subnet1_name
-        var_subnet2_name                = var.subnet2_name
-        var_subnet3_name                = var.subnet3_name
-        var_subnet4_name                = var.subnet4_name
-        var_sn1_gateway                 = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet1_name}"].address_prefixes[0], 1)
-        var_sn2_gateway                 = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet2_name}"].address_prefixes[0], 1)
-        var_sn4_gateway                 = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet4_name}"].address_prefixes[0], 1)
+        var_subnet1_name                = var.subnets["fortigate_external"].name
+        var_subnet2_name                = var.subnets["fortigate_internal"].name
+        var_subnet3_name                = var.subnets["fortigate_ha"].name
+        var_subnet4_name                = var.subnets["fortigate_management"].name
+        var_sn1_gateway                 = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_external"].name}"].address_prefixes[0], 1)
+        var_sn2_gateway                 = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_internal"].name}"].address_prefixes[0], 1)
+        var_sn4_gateway                 = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_management"].name}"].address_prefixes[0], 1)
         var_port1_ip                    = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-b-nic1"].private_ip_address
-        var_port1_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet1_name}"].address_prefixes[0])
+        var_port1_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_external"].name}"].address_prefixes[0])
         var_port2_ip                    = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-b-nic2"].private_ip_address
-        var_port2_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet2_name}"].address_prefixes[0])
+        var_port2_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_internal"].name}"].address_prefixes[0])
         var_port3_ip                    = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-b-nic3"].private_ip_address
-        var_port3_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet3_name}"].address_prefixes[0])
+        var_port3_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_ha"].name}"].address_prefixes[0])
         var_port4_ip                    = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-b-nic4"].private_ip_address
-        var_port4_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnet4_name}"].address_prefixes[0])
+        var_port4_netmask               = cidrnetmask(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_management"].name}"].address_prefixes[0])
         var_ha_priority                 = 1
         var_ha_peer_ip                  = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-a-nic3"].private_ip_address
         var_fgt_external_ipaddress      = azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-pip"].ip_address
-        var_dvwa_vm_ip                  = var.deploy_dvwa == "yes" ? var.subnet7_start_address : ""
+        var_dvwa_vm_ip                  = var.deploy_dvwa ? var.subnets["workload"].start_address : ""
         var_deploy_dvwa                 = var.deploy_dvwa
         var_fortimanager                = var.fortimanager
         var_fortimanager_ip             = var.fortimanager_ip
@@ -271,6 +272,7 @@ locals {
         var_fortigate_license_byol      = var.fortigate_license_byol_b
         var_fortigate_license_flexvm    = var.fortigate_license_flexvm_b
         var_fortigate_additional_config = var.fortigate_additional_custom_data
+        var_azure_metadata_ip           = var.azure_metadata_ip
       }))
 
       network_interface_ids = [
@@ -281,25 +283,25 @@ locals {
       ]
 
       source_image_reference = {
-        publisher = "fortinet"
-        offer     = "fortinet_fortigate-vm_v5"
+        publisher = local.fortinet_publisher
+        offer     = local.fortigate_offer
         sku       = var.fortigate_image_sku
         version   = var.fortigate_image_version
       }
 
       plan = {
-        publisher = "fortinet"
-        product   = "fortinet_fortigate-vm_v5"
+        publisher = local.fortinet_publisher
+        product   = local.fortigate_product
         name      = var.fortigate_image_sku
       }
 
       os_disk = {
         name                 = "${var.deployment_prefix}-fgt-b-osdisk"
         caching              = "ReadWrite"
-        storage_account_type = "Standard_LRS"
+        storage_account_type = local.standard_lrs
       }
 
-      boot_diagnostics_enabled = var.fgt_serial_console == "yes"
+      boot_diagnostics_enabled = var.fgt_serial_console
 
       identity_type = "SystemAssigned"
 
