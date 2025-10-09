@@ -259,29 +259,6 @@ Depends on: locals_network.tf (subnets, public IPs)
 - Health probe ports (8008 for FGT, 8080/8443 for FWB)
 - NAT rules for SSH/HTTPS management access
 
-##### **locals_marketplace_agreements.tf** - Azure Marketplace Terms
-```
-Purpose: Define Azure Marketplace agreement acceptance configurations
-Contains:
-  └── marketplace_agreements (conditional merge)
-      ├── FortiGate agreement (always required)
-      └── FortiWeb agreement (conditional: deploy_fortiweb)
-
-Lines: ~35
-Used by: resource_marketplace_agreement.tf
-Depends on: locals_constants.tf (publisher/offer IDs), variables.tf (SKUs)
-```
-
-**Key features:**
-- Conditional FortiWeb agreement using `merge()` pattern
-- References Fortinet marketplace constants
-- Ubuntu workload VM doesn't need marketplace agreement (free Canonical image)
-
-**Why separate:**
-- Marketplace agreements are foundational (must be accepted before VM creation)
-- Clean separation of marketplace configuration from VM configuration
-- Enables easy addition of future Fortinet products (FortiManager, FortiAnalyzer)
-
 ##### **locals_compute.tf** - Resource Aggregator
 ```
 Purpose: Merge component-specific locals into final collections
@@ -347,19 +324,6 @@ These files define **how** to create resources from locals.
 | `resource_lb_probe.tf` | Health probes |
 | `resource_lb_rule.tf` | Load balancing rules |
 | `resource_lb_nat_rule.tf` | NAT rules for management |
-
-##### Special Resource Files
-
-| File | Purpose |
-|------|---------|
-| `resource_marketplace_agreement.tf` | Accept Azure Marketplace terms (native azurerm resource) |
-
-**Marketplace Agreement Details:**
-- Uses native `azurerm_marketplace_agreement` resource (not Azure CLI)
-- Iterates over `local.marketplace_agreements` using `for_each`
-- Automatically handles FortiGate (always) and FortiWeb (conditional)
-- VMs depend on marketplace agreements via `depends_on`
-- Ubuntu workload VM doesn't require marketplace agreement (free Canonical image)
 
 ---
 
@@ -518,11 +482,30 @@ locals {
 
 1. **Azure Subscription** with sufficient permissions
 2. **Terraform** v1.0+ installed ([download](https://www.terraform.io/downloads))
-3. **Azure authentication** configured (via Azure CLI, Service Principal, or Managed Identity)
-   - Easiest: Azure CLI ([install](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)) and run `az login`
-   - Production: Service Principal or Managed Identity ([guide](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_client_secret))
+3. **Azure CLI** installed and authenticated ([install](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli))
+   - Run `az login` to authenticate
+   - Alternative: Service Principal or Managed Identity ([guide](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_client_secret))
+4. **Azure Marketplace terms accepted** (one-time, per subscription)
 
-**Note:** Azure CLI is optional (only needed for `az login`). All operations use native Terraform resources.
+### Accept Marketplace Terms
+
+Before first deployment, accept Azure Marketplace terms for Fortinet products:
+
+```bash
+# Accept FortiGate marketplace terms (required)
+az vm image terms accept \
+  --publisher fortinet \
+  --offer fortinet_fortigate-vm_v5 \
+  --plan fortinet_fg-vm_payg_2022
+
+# Accept FortiWeb marketplace terms (if deploying FortiWeb)
+az vm image terms accept \
+  --publisher fortinet \
+  --offer fortinet_fortiweb-vm_v5 \
+  --plan fortinet_fw-vm_payg_v2
+```
+
+**Note:** This is required once per Azure subscription. Terms persist across deployments.
 
 ### Basic Deployment (5 minutes)
 
@@ -829,35 +812,30 @@ terraform destroy -target=azurerm_linux_virtual_machine.virtual_machine[\"worklo
 Error: creating Linux Virtual Machine: MarketplacePurchaseEligibilityFailed
 ```
 
+**Cause:** Azure Marketplace terms for Fortinet products haven't been accepted in your subscription.
+
 **Solution:**
 
-Terraform **automatically handles** marketplace agreement acceptance via `resource_marketplace_agreement.tf`. This error typically only occurs if:
+Accept the marketplace terms **once per Azure subscription** before deployment:
 
-1. **Initial deployment with connectivity issues** - Terraform couldn't reach Azure Marketplace API
-2. **Manual state manipulation** - Marketplace agreement resource was removed from state
-3. **Terms revoked externally** - Someone manually revoked the terms in Azure Portal
-
-**Fix:**
 ```bash
-# Let Terraform handle it automatically (recommended)
-terraform apply
-
-# The native azurerm_marketplace_agreement resource will:
-# - Accept FortiGate terms (always)
-# - Accept FortiWeb terms (if deploy_fortiweb = true)
-# - Track acceptance in Terraform state
-```
-
-**Manual acceptance (only if Terraform method fails):**
-```bash
-# Accept FortiGate terms manually
-az vm image terms accept --publisher fortinet --offer fortinet_fortigate-vm_v5 --plan fortinet_fg-vm_payg_2022
+# Accept FortiGate terms (required)
+az vm image terms accept \
+  --publisher fortinet \
+  --offer fortinet_fortigate-vm_v5 \
+  --plan fortinet_fg-vm_payg_2022
 
 # Accept FortiWeb terms (if deploying FortiWeb)
-az vm image terms accept --publisher fortinet --offer fortinet_fortiweb-vm_v5 --plan fortinet_fw-vm_payg_v2
+az vm image terms accept \
+  --publisher fortinet \
+  --offer fortinet_fortiweb-vm_v5 \
+  --plan fortinet_fw-vm_payg_v2
 ```
 
-**Note:** Ubuntu workload VM doesn't require marketplace agreement acceptance (free Canonical image).
+**Note:**
+- Marketplace terms persist across deployments and survive `terraform destroy`
+- Acceptance is required once per subscription
+- Ubuntu workload VM doesn't require marketplace agreement (free Canonical image)
 
 #### Issue: IP Address Conflicts
 
