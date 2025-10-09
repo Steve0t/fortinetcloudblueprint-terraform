@@ -188,7 +188,7 @@ locals {
         var_ha_priority                 = 255
         var_ha_peer_ip                  = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-b-nic3"].private_ip_address
         var_fgt_external_ipaddress      = azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-pip"].ip_address
-        var_dvwa_vm_ip                  = var.deploy_dvwa ? var.subnets["workload"].start_address : ""
+        var_dvwa_vm_ip                  = var.deploy_dvwa ? azurerm_network_interface.network_interface["${var.deployment_prefix}-workload-nic"].private_ip_address : ""
         var_deploy_dvwa                 = var.deploy_dvwa
         var_fortimanager                = var.fortimanager
         var_fortimanager_ip             = var.fortimanager_ip
@@ -264,7 +264,7 @@ locals {
         var_ha_priority                 = 1
         var_ha_peer_ip                  = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-a-nic3"].private_ip_address
         var_fgt_external_ipaddress      = azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-pip"].ip_address
-        var_dvwa_vm_ip                  = var.deploy_dvwa ? var.subnets["workload"].start_address : ""
+        var_dvwa_vm_ip                  = var.deploy_dvwa ? azurerm_network_interface.network_interface["${var.deployment_prefix}-workload-nic"].private_ip_address : ""
         var_deploy_dvwa                 = var.deploy_dvwa
         var_fortimanager                = var.fortimanager
         var_fortimanager_ip             = var.fortimanager_ip

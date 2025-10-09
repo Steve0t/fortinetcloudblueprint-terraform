@@ -112,8 +112,8 @@ locals {
         var_subnet6_cidr        = split("/", var.subnets["fortiweb_internal"].address_prefix)[1]
         var_vnet_address_prefix = var.vnet_address_prefix
         var_subnet6_gateway     = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_internal"].name}"].address_prefixes[0], 1)
-        var_workload_ip         = var.deploy_dvwa ? var.subnets["workload"].start_address : ""
-        var_fortigate_ip        = var.subnets["fortigate_management"].start_address
+        var_workload_ip         = var.deploy_dvwa ? azurerm_network_interface.network_interface["${var.deployment_prefix}-workload-nic"].private_ip_address : ""
+        var_fortigate_ip        = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-a-nic4"].private_ip_address
         var_admin_username      = var.admin_username
         var_fortiweb_public_ip  = azurerm_public_ip.public_ip["${var.deployment_prefix}-fwb-pip"].ip_address
         var_deployment_prefix   = var.deployment_prefix
@@ -181,8 +181,8 @@ locals {
         var_subnet6_cidr        = split("/", var.subnets["fortiweb_internal"].address_prefix)[1]
         var_vnet_address_prefix = var.vnet_address_prefix
         var_subnet6_gateway     = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_internal"].name}"].address_prefixes[0], 1)
-        var_workload_ip         = var.deploy_dvwa ? var.subnets["workload"].start_address : ""
-        var_fortigate_ip        = var.subnets["fortigate_management"].start_address
+        var_workload_ip         = var.deploy_dvwa ? azurerm_network_interface.network_interface["${var.deployment_prefix}-workload-nic"].private_ip_address : ""
+        var_fortigate_ip        = azurerm_network_interface.network_interface["${var.deployment_prefix}-fgt-a-nic4"].private_ip_address
         var_admin_username      = var.admin_username
         var_fortiweb_public_ip  = azurerm_public_ip.public_ip["${var.deployment_prefix}-fwb-pip"].ip_address
         var_deployment_prefix   = var.deployment_prefix
