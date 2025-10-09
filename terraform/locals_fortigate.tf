@@ -17,7 +17,7 @@ locals {
         name                          = "ipconfig1"
         subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_external"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = var.subnets["fortigate_external"].start_address
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_external"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortigate_external"].start_address)[3]) + 1)
         public_ip_address_id          = null
         primary                       = true
       }]
@@ -53,7 +53,7 @@ locals {
         name                          = "ipconfig1"
         subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_ha"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = var.subnets["fortigate_ha"].start_address
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_ha"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortigate_ha"].start_address)[3]) + 1)
         public_ip_address_id          = null
         primary                       = true
       }]
@@ -71,7 +71,7 @@ locals {
         name                          = "ipconfig1"
         subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_management"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = var.subnets["fortigate_management"].start_address
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_management"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortigate_management"].start_address)[3]) + 1)
         public_ip_address_id          = var.enable_fortigate_mgmt_public_ips ? azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-a-mgmt-pip"].id : null
         primary                       = true
       }]
@@ -89,7 +89,7 @@ locals {
         name                          = "ipconfig1"
         subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_external"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_external"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortigate_external"].start_address)[3]) + 1)
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_external"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortigate_external"].start_address)[3]) + 2)
         public_ip_address_id          = null
         primary                       = true
       }]
@@ -125,7 +125,7 @@ locals {
         name                          = "ipconfig1"
         subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_ha"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_ha"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortigate_ha"].start_address)[3]) + 1)
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_ha"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortigate_ha"].start_address)[3]) + 2)
         public_ip_address_id          = null
         primary                       = true
       }]
@@ -143,7 +143,7 @@ locals {
         name                          = "ipconfig1"
         subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_management"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_management"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortigate_management"].start_address)[3]) + 1)
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortigate_management"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortigate_management"].start_address)[3]) + 2)
         public_ip_address_id          = var.enable_fortigate_mgmt_public_ips ? azurerm_public_ip.public_ip["${var.deployment_prefix}-fgt-b-mgmt-pip"].id : null
         primary                       = true
       }]

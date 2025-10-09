@@ -87,7 +87,7 @@ variable "subnets" {
     fortigate_external = {
       name              = "FGExternal"
       address_prefix    = "10.0.1.0/24"
-      start_address     = "10.0.1.5"
+      start_address     = "10.0.1.4"
       required_ip_count = 2 # FortiGate A + B
       purpose           = "FortiGate external-facing interfaces (port1)"
     }
@@ -103,7 +103,7 @@ variable "subnets" {
     fortigate_ha = {
       name              = "FGHA"
       address_prefix    = "10.0.3.0/24"
-      start_address     = "10.0.3.5"
+      start_address     = "10.0.3.4"
       required_ip_count = 2 # FortiGate A + B
       purpose           = "FortiGate HA synchronization (port3)"
     }
@@ -111,7 +111,7 @@ variable "subnets" {
     fortigate_management = {
       name              = "FGMgmt"
       address_prefix    = "10.0.4.0/24"
-      start_address     = "10.0.4.5"
+      start_address     = "10.0.4.4"
       required_ip_count = 2 # FortiGate A + B
       purpose           = "FortiGate management interfaces (port4)"
     }
@@ -119,8 +119,8 @@ variable "subnets" {
     fortiweb_external = {
       name              = "FWBExternal"
       address_prefix    = "10.0.5.0/24"
-      start_address     = "10.0.5.5"
-      required_ip_count = 3 # External LB + FortiWeb A + B
+      start_address     = "10.0.5.4"
+      required_ip_count = 3 # Internal LB + FortiWeb A + B
       purpose           = "FortiWeb external-facing interfaces (port1)"
     }
 
@@ -135,7 +135,7 @@ variable "subnets" {
     workload = {
       name              = "DMZProtectedA"
       address_prefix    = "10.0.10.0/24"
-      start_address     = "10.0.10.7"
+      start_address     = "10.0.10.4"
       required_ip_count = 1 # Workload VM
       purpose           = "Protected workload subnet"
     }

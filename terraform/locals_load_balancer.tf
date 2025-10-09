@@ -45,8 +45,26 @@ locals {
         }]
       }
     },
-    # FortiWeb External Load Balancer (conditional)
+    # FortiWeb Load Balancers (conditional)
     var.deploy_fortiweb ? {
+      # FortiWeb Internal Load Balancer (Private)
+      "${var.deployment_prefix}-fortiweb-internal-lb" = {
+        name                = "${var.deployment_prefix}-FWB-ILB"
+        location            = azurerm_resource_group.resource_group[local.resource_group_name].location
+        resource_group_name = azurerm_resource_group.resource_group[local.resource_group_name].name
+        sku                 = "Standard"
+        tags                = var.fortinet_tags
+
+        frontend_ip_configurations = [{
+          name                          = "${var.deployment_prefix}-ILB-${var.subnets["fortiweb_external"].name}-FrontEnd"
+          public_ip_address_id          = null
+          subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_external"].name}"].id
+          private_ip_address            = var.subnets["fortiweb_external"].start_address
+          private_ip_address_allocation = "Static"
+        }]
+      }
+
+      # FortiWeb External Load Balancer (Public)
       "${var.deployment_prefix}-fortiweb-external-lb" = {
         name                = "${var.deployment_prefix}-FWB-ELB"
         location            = azurerm_resource_group.resource_group[local.resource_group_name].location
@@ -81,6 +99,10 @@ locals {
       }
     },
     var.deploy_fortiweb ? {
+      "${var.deployment_prefix}-fortiweb-internal-lb-backend" = {
+        name            = "${var.deployment_prefix}-ILB-${var.subnets["fortiweb_external"].name}-BackEnd"
+        loadbalancer_id = azurerm_lb.load_balancer["${var.deployment_prefix}-fortiweb-internal-lb"].id
+      }
       "${var.deployment_prefix}-fortiweb-external-lb-backend" = {
         name            = "${var.deployment_prefix}-FWB-ELB-BackEnd"
         loadbalancer_id = azurerm_lb.load_balancer["${var.deployment_prefix}-fortiweb-external-lb"].id
@@ -112,6 +134,14 @@ locals {
       }
     },
     var.deploy_fortiweb ? {
+      "${var.deployment_prefix}-fortiweb-internal-lb-probe" = {
+        name            = "lbprobe"
+        loadbalancer_id = azurerm_lb.load_balancer["${var.deployment_prefix}-fortiweb-internal-lb"].id
+        protocol        = "Tcp"
+        port            = var.fortiweb_http_probe_port
+        interval        = 15
+        probe_threshold = 2
+      }
       "${var.deployment_prefix}-fortiweb-external-lb-probe-http" = {
         name            = "lbprobe-http"
         loadbalancer_id = azurerm_lb.load_balancer["${var.deployment_prefix}-fortiweb-external-lb"].id
@@ -222,6 +252,21 @@ locals {
         protocol                       = "Udp"
         frontend_port                  = 10551
         backend_port                   = 10551
+        enable_floating_ip             = true
+        idle_timeout_in_minutes        = 5
+      }
+    } : {},
+    # FortiWeb Internal LB Rule - HA All Ports
+    var.deploy_fortiweb ? {
+      "${var.deployment_prefix}-fortiweb-internal-lb-rule-ha" = {
+        name                           = "lbruleFEall"
+        loadbalancer_id                = azurerm_lb.load_balancer["${var.deployment_prefix}-fortiweb-internal-lb"].id
+        frontend_ip_configuration_name = "${var.deployment_prefix}-ILB-${var.subnets["fortiweb_external"].name}-FrontEnd"
+        backend_address_pool_ids       = [azurerm_lb_backend_address_pool.lb_backend_address_pool["${var.deployment_prefix}-fortiweb-internal-lb-backend"].id]
+        probe_id                       = azurerm_lb_probe.lb_probe["${var.deployment_prefix}-fortiweb-internal-lb-probe"].id
+        protocol                       = "All"
+        frontend_port                  = 0
+        backend_port                   = 0
         enable_floating_ip             = true
         idle_timeout_in_minutes        = 5
       }
@@ -373,11 +418,25 @@ locals {
     },
     # FortiWeb Backend Pool Associations
     var.deploy_fortiweb ? {
+      # FortiWeb A - Port 1 to Internal LB
+      "${var.deployment_prefix}-fwb-a-nic1-internal-lb" = {
+        network_interface_id    = azurerm_network_interface.network_interface["${var.deployment_prefix}-fwb-a-nic1"].id
+        ip_configuration_name   = "ipconfig1"
+        backend_address_pool_id = azurerm_lb_backend_address_pool.lb_backend_address_pool["${var.deployment_prefix}-fortiweb-internal-lb-backend"].id
+      }
+      # FortiWeb A - Port 1 to External LB
       "${var.deployment_prefix}-fwb-a-nic1-external-lb" = {
         network_interface_id    = azurerm_network_interface.network_interface["${var.deployment_prefix}-fwb-a-nic1"].id
         ip_configuration_name   = "ipconfig1"
         backend_address_pool_id = azurerm_lb_backend_address_pool.lb_backend_address_pool["${var.deployment_prefix}-fortiweb-external-lb-backend"].id
       }
+      # FortiWeb B - Port 1 to Internal LB
+      "${var.deployment_prefix}-fwb-b-nic1-internal-lb" = {
+        network_interface_id    = azurerm_network_interface.network_interface["${var.deployment_prefix}-fwb-b-nic1"].id
+        ip_configuration_name   = "ipconfig1"
+        backend_address_pool_id = azurerm_lb_backend_address_pool.lb_backend_address_pool["${var.deployment_prefix}-fortiweb-internal-lb-backend"].id
+      }
+      # FortiWeb B - Port 1 to External LB
       "${var.deployment_prefix}-fwb-b-nic1-external-lb" = {
         network_interface_id    = azurerm_network_interface.network_interface["${var.deployment_prefix}-fwb-b-nic1"].id
         ip_configuration_name   = "ipconfig1"

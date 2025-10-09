@@ -25,7 +25,7 @@ locals {
         name                          = "ipconfig1"
         subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["workload"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = var.subnets["workload"].start_address
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["workload"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["workload"].start_address)[3]) + 3)
         public_ip_address_id          = null
         primary                       = true
       }]

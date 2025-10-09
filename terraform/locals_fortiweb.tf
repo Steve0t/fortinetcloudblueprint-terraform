@@ -22,7 +22,7 @@ locals {
         name                          = "ipconfig1"
         subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_external"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = var.subnets["fortiweb_external"].start_address
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_external"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortiweb_external"].start_address)[3]) + 1)
         public_ip_address_id          = null
         primary                       = true
       }]
@@ -60,7 +60,7 @@ locals {
         name                          = "ipconfig1"
         subnet_id                     = azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_external"].name}"].id
         private_ip_address_allocation = "Static"
-        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_external"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortiweb_external"].start_address)[3]) + 1)
+        private_ip_address            = cidrhost(azurerm_subnet.subnet["${var.deployment_prefix}-${var.subnets["fortiweb_external"].name}"].address_prefixes[0], tonumber(split(".", var.subnets["fortiweb_external"].start_address)[3]) + 2)
         public_ip_address_id          = null
         primary                       = true
       }]
