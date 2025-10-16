@@ -181,8 +181,8 @@ variable "fortigate_image_sku" {
   type        = string
   default     = "fortinet_fg-vm_payg_2022"
   validation {
-    condition     = contains(["fortinet_fg-vm", "fortinet_fg-vm_payg_2022"], var.fortigate_image_sku)
-    error_message = "fortigate_image_sku must be either 'fortinet_fg-vm' or 'fortinet_fg-vm_payg_2022'"
+    condition     = contains(["fortinet_fg-vm_g2", "fortinet_fg-vm_payg_2023_g2"], var.fortigate_image_sku)
+    error_message = "fortigate_image_sku must be either 'fortinet_fg-vm_g2' or 'fortinet_fg-vm_payg_2023_g2'"
   }
 }
 
