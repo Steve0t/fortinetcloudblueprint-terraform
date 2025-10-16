@@ -138,7 +138,7 @@ locals {
         name            = "lbprobe"
         loadbalancer_id = azurerm_lb.load_balancer["${var.deployment_prefix}-fortiweb-internal-lb"].id
         protocol        = "Tcp"
-        port            = var.fortiweb_http_probe_port
+        port            = var.fortiweb_https_probe_port
         interval        = 15
         probe_threshold = 2
       }
