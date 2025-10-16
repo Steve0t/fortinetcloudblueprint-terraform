@@ -48,6 +48,7 @@ edit 'WORKLOAD_POOL'
 config pserver-list
 edit 1
 set ip ${var_workload_ip}
+set port 1000
 next
 end
 next
