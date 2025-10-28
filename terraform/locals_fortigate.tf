@@ -197,6 +197,7 @@ locals {
         var_fortigate_license_flexvm    = var.fortigate_license_flexvm_a
         var_fortigate_additional_config = var.fortigate_additional_custom_data
         var_azure_metadata_ip           = var.azure_metadata_ip
+        var_azure_password              = var.azure_password
       }))
 
       network_interface_ids = [
@@ -273,6 +274,7 @@ locals {
         var_fortigate_license_flexvm    = var.fortigate_license_flexvm_b
         var_fortigate_additional_config = var.fortigate_additional_custom_data
         var_azure_metadata_ip           = var.azure_metadata_ip
+        var_azure_password              = var.azure_password
       }))
 
       network_interface_ids = [
