@@ -179,7 +179,7 @@ variable "on_prem_range" {
 variable "fortigate_image_sku" {
   description = "FortiGate license model (BYOL or PAYG)"
   type        = string
-  default     = "fortinet_fg-vm_payg_2022"
+  default     = "fortinet_fg-vm_payg_2023_g2"
   validation {
     condition     = contains(["fortinet_fg-vm_g2", "fortinet_fg-vm_payg_2023_g2"], var.fortigate_image_sku)
     error_message = "fortigate_image_sku must be either 'fortinet_fg-vm_g2' or 'fortinet_fg-vm_payg_2023_g2'"
