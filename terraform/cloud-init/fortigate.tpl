@@ -83,6 +83,7 @@ set device port1
  set priority ${var_ha_priority}
  set unicast-hb enable
  set unicast-hb-peerip ${var_ha_peer_ip}
+ set password ${var_admin_password}
  end
 %{ if var_deploy_dvwa ~}
 config firewall vip
